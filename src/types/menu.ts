@@ -11,3 +11,9 @@ export interface CartItem extends MenuItem {
   quantity: number;
   notes: string;
 }
+
+export interface AdminSettings {
+  isOpen: boolean;
+  message: string;
+  authorizedIPs: string[];
+}
