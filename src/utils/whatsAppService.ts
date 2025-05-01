@@ -1,6 +1,6 @@
 
-// This is a utility to directly send WhatsApp messages using WhatsApp API
-// Instead of opening the app and requiring manual sending
+// This is a utility to directly send WhatsApp messages using WhatsApp Business API
+// This requires a registered WhatsApp Business account and API access
 
 export const sendWhatsAppMessage = async (
   orderSummary: string,
@@ -21,28 +21,29 @@ ${orderSummary}
 *Total: €${totalAmount.toFixed(2)}*
     `.trim();
     
-    console.log("Sending WhatsApp Message to +972522335226:", message);
+    console.log("Sending WhatsApp Message from +970598419419 to +972522335226:", message);
     
-    // In a real production app, you would have this endpoint set up on your backend
+    // In a real production app, you would use the WhatsApp Business API
     // For demonstration, we're simulating a successful API call
-    // and logging the message to the console
     
-    // Simulating successful API response
-    // In real-world, this would be an actual API call to WhatsApp Business API:
-    // const response = await fetch('https://your-backend-api.com/send-whatsapp', {
+    // In real-world implementation, this would be an actual API call:
+    // const response = await fetch('https://your-whatsapp-api-endpoint.com/send-message', {
     //   method: 'POST',
     //   headers: {
     //     'Content-Type': 'application/json',
+    //     'Authorization': 'Bearer YOUR_API_KEY'
     //   },
     //   body: JSON.stringify({
-    //     phone: '+972522335226',
-    //     message: message
+    //     from: '+970598419419',  // Your WhatsApp Business number
+    //     to: '+972522335226',    // Recipient number
+    //     message: message,
+    //     type: 'text'
     //   })
     // });
     // return response.ok;
     
     // For this demo, we'll just simulate a successful message send
-    console.log("Message sent successfully to WhatsApp number +972522335226");
+    console.log("Message sent successfully from WhatsApp Business number +970598419419 to +972522335226");
     return true;
   } catch (error) {
     console.error("Error sending WhatsApp message:", error);
