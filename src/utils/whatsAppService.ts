@@ -1,4 +1,4 @@
-import axios from 'axios';
+// import axios from 'axios';
 // This is a utility to directly send WhatsApp messages using WhatsApp Business API
 // This requires a registered WhatsApp Business account and API access
 
@@ -47,26 +47,30 @@ const CHAT_ID = '-4773302427'; // Replace with your group chat ID
 //   .catch(console.error);
 
  // Sending message to Telegram
-    const response = await axios.post(url, {
-      chat_id: CHAT_ID,
-      text: message,
-      parse_mode: 'Markdown'  // Specify that the message will use Markdown formatting
-    });
-    // In real-world implementation, this would be an actual API call:
-    // const response = await fetch(url, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //     // 'Authorization': 'Bearer YOUR_API_KEY'
-    //   },
-    //   body: JSON.stringify({
-    //     // from: '+970598419419',  // Your WhatsApp Business number
-    //     // to: '+972522335226',    // Recipient number
-    //     chat_id: CHAT_ID,
-    //     message: message,
-    //     type: 'text'
-    //   })
+    // const response = await axios.post(url, {
+    //   chat_id: CHAT_ID,
+    //   text: message,
+    //   parse_mode: 'Markdown'  // Specify that the message will use Markdown formatting
     // });
+    // In real-world implementation, this would be an actual API call:
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+        // 'Authorization': 'Bearer YOUR_API_KEY'
+      },
+      body: JSON.stringify({
+        // from: '+970598419419',  // Your WhatsApp Business number
+        // to: '+972522335226',    // Recipient number
+        // chat_id: CHAT_ID,
+        // message: message,
+        // type: 'text'
+
+          chat_id: CHAT_ID,
+      text: message,
+      parse_mode: 'Markdown' 
+      })
+    });
 //     return response.ok;
 
 //     // For this demo, we'll just simulate a successful message send
