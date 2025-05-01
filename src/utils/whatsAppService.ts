@@ -1,5 +1,4 @@
-    import twilio from 'twilio';
-
+import axios from 'axios';
 // This is a utility to directly send WhatsApp messages using WhatsApp Business API
 // This requires a registered WhatsApp Business account and API access
 
@@ -27,44 +26,43 @@ ${orderSummary}
     // In a real production app, you would use the WhatsApp Business API
     // For demonstration, we're simulating a successful API call
 
-const accountSid = 'ACf199f0298e4a5f7f473589e6919c809a';
-const authToken = '[AuthToken]'; // Replace with your actual Auth Token
+// telegram.ts
 
-const client = twilio(accountSid, authToken);
+const TELEGRAM_BOT_TOKEN = '7692012997:AAFlBqlgNV4oskXXB7cljFRXuTwP98ed8N8';
+const CHAT_ID = '-4773302427'; // Replace with your group chat ID
 
-client.messages
-  .create({
-    from: 'whatsapp:+14155238886',
-    contentSid: 'HXb5b62575e6e4ff6129ad7c8efe1f983e',
-    contentVariables: JSON.stringify({
-      '1': '12/1',
-      '2': '3pm',
-    }),
-    to: 'whatsapp:+972522335226',
-  })
-  .then((message) => {
-    console.log('Message SID:', message.sid);
-  })
-  .catch((error) => {
-    console.error('Failed to send message:', error);
-  });
+// export async function sendTelegramMessage(text: string) {
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+//   await axios.post(url, {
+//     chat_id: CHAT_ID,
+//     text,
+//   });
+// }
+
+// // Example usage
+// sendTelegramMessage("🍕 New order: 1 Pizza + 1 Cola")
+//   .then(() => console.log("Message sent"))
+//   .catch(console.error);
+
 
     // In real-world implementation, this would be an actual API call:
-    // const response = await fetch('https://your-whatsapp-api-endpoint.com/send-message', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': 'Bearer YOUR_API_KEY'
-    //   },
-    //   body: JSON.stringify({
-    //     from: '+970598419419',  // Your WhatsApp Business number
-    //     to: '+972522335226',    // Recipient number
-    //     message: message,
-    //     type: 'text'
-    //   })
-    // });
-    // return response.ok;
-    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+        // 'Authorization': 'Bearer YOUR_API_KEY'
+      },
+      body: JSON.stringify({
+        // from: '+970598419419',  // Your WhatsApp Business number
+        // to: '+972522335226',    // Recipient number
+        chat_id: CHAT_ID,
+        message: message,
+        type: 'text'
+      })
+    });
+    return response.ok;
+
     // For this demo, we'll just simulate a successful message send
     console.log("Message sent successfully from WhatsApp Business number +970598419419 to +972522335226");
     return true;
