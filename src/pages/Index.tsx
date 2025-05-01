@@ -161,7 +161,7 @@ const Index = () => {
                 alt="University Logo" 
                 className="h-10"
               />
-              <h1 className="text-xl font-bold">Uni Cafeteria</h1>
+              <h1 className="text-xl font-bold">ND Oasis Lounge</h1>
             </div>
             <Button 
               variant="outline" 
@@ -202,7 +202,7 @@ const Index = () => {
               alt="University Logo" 
               className="h-10"
             />
-            <h1 className="text-xl font-bold">Uni Cafeteria</h1>
+            <h1 className="text-xl font-bold">ND Oasis Lounge</h1>
           </div>
           <div className="flex items-center space-x-2">
             <Button 
