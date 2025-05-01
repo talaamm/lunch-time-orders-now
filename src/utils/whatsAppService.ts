@@ -1,3 +1,4 @@
+    import twilio from 'twilio';
 
 // This is a utility to directly send WhatsApp messages using WhatsApp Business API
 // This requires a registered WhatsApp Business account and API access
@@ -25,7 +26,6 @@ ${orderSummary}
     
     // In a real production app, you would use the WhatsApp Business API
     // For demonstration, we're simulating a successful API call
-    import twilio from 'twilio';
 
 const accountSid = 'ACf199f0298e4a5f7f473589e6919c809a';
 const authToken = '[AuthToken]'; // Replace with your actual Auth Token
