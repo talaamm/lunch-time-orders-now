@@ -25,7 +25,30 @@ ${orderSummary}
     
     // In a real production app, you would use the WhatsApp Business API
     // For demonstration, we're simulating a successful API call
-    
+    import twilio from 'twilio';
+
+const accountSid = 'ACf199f0298e4a5f7f473589e6919c809a';
+const authToken = '[AuthToken]'; // Replace with your actual Auth Token
+
+const client = twilio(accountSid, authToken);
+
+client.messages
+  .create({
+    from: 'whatsapp:+14155238886',
+    contentSid: 'HXb5b62575e6e4ff6129ad7c8efe1f983e',
+    contentVariables: JSON.stringify({
+      '1': '12/1',
+      '2': '3pm',
+    }),
+    to: 'whatsapp:+972522335226',
+  })
+  .then((message) => {
+    console.log('Message SID:', message.sid);
+  })
+  .catch((error) => {
+    console.error('Failed to send message:', error);
+  });
+
     // In real-world implementation, this would be an actual API call:
     // const response = await fetch('https://your-whatsapp-api-endpoint.com/send-message', {
     //   method: 'POST',
