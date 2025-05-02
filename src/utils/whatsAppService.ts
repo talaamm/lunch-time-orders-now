@@ -20,10 +20,10 @@ ${discountApplied ? `*Discount: ${discountApplied}% applied*\n` : ''}
 ${orderSummary}
 
 *Total: ₪${totalAmount.toFixed(2)}*
-
-// Thank you for your order!
     `;
 
+
+// Thank you for your order!
     
     
     // console.log("WhatsApp message would be sent:", message);
