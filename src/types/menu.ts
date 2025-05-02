@@ -5,6 +5,7 @@ export interface MenuItem {
   price: number;
   category: string;
   timeAvailable: string;
+  description: string;
 }
 
 export interface CartItem extends MenuItem {
@@ -16,4 +17,13 @@ export interface AdminSettings {
   isOpen: boolean;
   message: string;
   authorizedIPs: string[];
+}
+
+export interface OrderDetails {
+  name: string;
+  isTakeaway: boolean;
+  pickupTime: string;
+  items: CartItem[];
+  orderedAt: number;
+  total: number;
 }
