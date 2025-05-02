@@ -8,9 +8,10 @@ interface OrderSummaryProps {
   updateQuantity: (id: string, quantity: number) => void;
   updateNotes: (id: string, notes: string) => void;
   removeItem: (id: string) => void;
+  currencySymbol?: string;
 }
 
-const OrderSummary = ({ items, updateQuantity, updateNotes, removeItem }: OrderSummaryProps) => {
+const OrderSummary = ({ items, updateQuantity, updateNotes, removeItem, currencySymbol = "€" }: OrderSummaryProps) => {
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity, 
     0
@@ -42,7 +43,7 @@ const OrderSummary = ({ items, updateQuantity, updateNotes, removeItem }: OrderS
       <div className="mt-4 pt-4 border-t">
         <div className="flex justify-between font-medium">
           <span>Total</span>
-          <span>€{total.toFixed(2)}</span>
+          <span>{currencySymbol}{total.toFixed(2)}</span>
         </div>
       </div>
     </div>

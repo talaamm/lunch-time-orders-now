@@ -1,3 +1,4 @@
+
 export interface MenuItem {
   id: string;
   name: string;
@@ -25,6 +26,7 @@ export interface OrderDetails {
   items: CartItem[];
   orderedAt: number;
   total: number;
+  discount?: number;  // Adding the discount property
 }
 
 export interface OrderSummaryProps {
@@ -32,5 +34,5 @@ export interface OrderSummaryProps {
   updateQuantity: (id: string, quantity: number) => void;
   updateNotes: (id: string, notes: string) => void;
   removeItem: (id: string) => void;
-  currencySymbol?: string;
+  currencySymbol?: string;  // Adding the currencySymbol property
 }
