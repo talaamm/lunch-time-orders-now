@@ -35,6 +35,8 @@ const Index = () => {
   const [pickupTime, setPickupTime] = useState("");
   const [recentOrders, setRecentOrders] = useState<OrderDetails[]>([]);
   const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(false);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountApplied, setDiscountApplied] = useState<number>(0);
 
   useEffect(() => {
     // Load admin settings from localStorage
@@ -114,6 +116,30 @@ const Index = () => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
+  const applyDiscount = (code: string) => {
+    const upperCode = code.toUpperCase();
+    if (upperCode === "STAFF") {
+      setDiscountApplied(50);
+      toast({
+        title: "Staff discount applied",
+        description: "50% discount has been applied to your order",
+      });
+    } else if (upperCode === "STUDENT") {
+      setDiscountApplied(5);
+      toast({
+        title: "Student discount applied",
+        description: "5% discount has been applied to your order",
+      });
+    } else {
+      setDiscountApplied(0);
+      toast({
+        title: "Invalid discount code",
+        description: "The discount code you entered is not valid",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSubmitOrder = async () => {
     if (!customerName.trim()) {
       toast({
@@ -141,6 +167,9 @@ const Index = () => {
     ).join('\n');
     
     const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const discountedTotal = discountApplied > 0 
+      ? totalAmount * (1 - discountApplied/100) 
+      : totalAmount;
     
     try {
       // Send message
@@ -148,7 +177,8 @@ const Index = () => {
         orderSummary,
         { name: customerName, isTakeaway },
         pickupTime,
-        totalAmount
+        discountedTotal,
+        discountApplied
       );
       
       if (sentSuccessfully) {
@@ -161,7 +191,8 @@ const Index = () => {
           pickupTime,
           items: [...cartItems],
           orderedAt: Date.now(),
-          total: totalAmount
+          total: discountedTotal,
+          discount: discountApplied
         };
         
         saveOrder(orderDetails);
@@ -169,6 +200,8 @@ const Index = () => {
         
         setCartItems([]);
         setIsCheckoutOpen(false);
+        setDiscountCode("");
+        setDiscountApplied(0);
         
         toast({
           title: "Order placed successfully",
@@ -197,6 +230,9 @@ const Index = () => {
 
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const discountedTotal = discountApplied > 0 
+    ? totalAmount * (1 - discountApplied/100) 
+    : totalAmount;
 
   // Format date for display
   const formatDate = (timestamp: number) => {
@@ -331,11 +367,10 @@ const Index = () => {
                 <CardContent className="p-4 flex flex-col h-full">
                   <div className="mb-4">
                     <h3 className="text-lg font-semibold text-navy-800 mb-1">{item.name}</h3>
-                    <p className="text-xs text-gray-500">Available {item.timeAvailable}</p>
                     <p className="text-sm text-gray-600 mt-2 flex-grow">{item.description}</p>
                   </div>
                   <div className="mt-auto pt-2 flex items-center justify-between">
-                    <p className="font-semibold text-navy-800">€{item.price.toFixed(2)}</p>
+                    <p className="font-semibold text-navy-800">₪{item.price.toFixed(2)}</p>
                     <Button 
                       onClick={() => addItemToCart(item)}
                       size="sm"
@@ -378,6 +413,7 @@ const Index = () => {
                   updateQuantity={updateItemQuantity}
                   updateNotes={updateItemNotes}
                   removeItem={removeItemFromCart}
+                  currencySymbol="₪"
                 />
               )}
             </div>
@@ -386,7 +422,7 @@ const Index = () => {
               <div className="pt-4 border-t mt-auto">
                 <div className="flex justify-between font-bold mb-4">
                   <span>Total</span>
-                  <span>€{totalAmount.toFixed(2)}</span>
+                  <span>₪{totalAmount.toFixed(2)}</span>
                 </div>
                 <Button 
                   onClick={() => {
@@ -449,10 +485,40 @@ const Index = () => {
               />
             </div>
             
+            <div>
+              <Label htmlFor="discount-code" className="text-sm font-medium">Discount Code</Label>
+              <div className="flex gap-2 mt-1">
+                <Input
+                  id="discount-code"
+                  value={discountCode}
+                  onChange={(e) => setDiscountCode(e.target.value)}
+                  placeholder="Enter code (STAFF/STUDENT)"
+                  className="flex-grow"
+                />
+                <Button 
+                  onClick={() => applyDiscount(discountCode)}
+                  variant="outline"
+                >
+                  Apply
+                </Button>
+              </div>
+              {discountApplied > 0 && (
+                <p className="text-green-600 text-sm mt-1">
+                  {discountApplied}% discount applied
+                </p>
+              )}
+            </div>
+            
             <div className="pt-4 border-t">
+              {discountApplied > 0 && (
+                <div className="flex justify-between text-sm mb-2">
+                  <span>Subtotal</span>
+                  <span>₪{totalAmount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-bold mb-4">
-                <span>Total</span>
-                <span>€{totalAmount.toFixed(2)}</span>
+                <span>Total{discountApplied > 0 ? ` (${discountApplied}% off)` : ""}</span>
+                <span>₪{discountedTotal.toFixed(2)}</span>
               </div>
               <Button 
                 onClick={handleSubmitOrder}
@@ -495,7 +561,7 @@ const Index = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold">€{order.total.toFixed(2)}</p>
+                      <p className="text-sm font-semibold">₪{order.total.toFixed(2)}</p>
                       <p className="text-xs text-gray-500">Ready at {order.pickupTime}</p>
                     </div>
                   </div>

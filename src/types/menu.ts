@@ -1,4 +1,3 @@
-
 export interface MenuItem {
   id: string;
   name: string;
@@ -26,4 +25,12 @@ export interface OrderDetails {
   items: CartItem[];
   orderedAt: number;
   total: number;
+}
+
+export interface OrderSummaryProps {
+  items: CartItem[];
+  updateQuantity: (id: string, quantity: number) => void;
+  updateNotes: (id: string, notes: string) => void;
+  removeItem: (id: string) => void;
+  currencySymbol?: string;
 }

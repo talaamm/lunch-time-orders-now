@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,6 +67,11 @@ const Admin = () => {
       });
     }
   };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    handleLogin();
+  };
   
   const handleSaveSettings = () => {
     localStorage.setItem("adminSettings", JSON.stringify(settings));
@@ -111,7 +116,7 @@ const Admin = () => {
           </div>
           <h1 className="text-2xl font-bold text-center mb-6 text-navy-800">Admin Login</h1>
           
-          <div className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -124,7 +129,7 @@ const Admin = () => {
               />
             </div>
             
-            <Button onClick={handleLogin} className="w-full bg-navy-800 hover:bg-navy-900">
+            <Button type="submit" className="w-full bg-navy-800 hover:bg-navy-900">
               Login
             </Button>
             
@@ -137,7 +142,7 @@ const Admin = () => {
                 Return to Menu
               </Button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     );
