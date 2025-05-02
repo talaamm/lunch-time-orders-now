@@ -18,7 +18,7 @@ const OrderItem = ({ item, updateQuantity, updateNotes, removeItem }: OrderItemP
       <div className="flex justify-between mb-2">
         <div>
           <h3 className="font-medium">{item.name}</h3>
-          <p className="text-sm text-gray-500">{item.category} • €{item.price.toFixed(2)}</p>
+          <p className="text-sm text-gray-500">{item.category} • ₪{item.price.toFixed(2)}</p>
         </div>
         <div className="flex items-center">
           <Button 

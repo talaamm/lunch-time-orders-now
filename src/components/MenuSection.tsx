@@ -29,7 +29,7 @@ const MenuSection = ({ title, items, timeAvailable, onAddItem }: MenuSectionProp
           >
             <div>
               <h3 className="font-medium">{item.name}</h3>
-              <p className="text-gray-700">€{item.price.toFixed(2)}</p>
+              <p className="text-gray-700">₪{item.price.toFixed(2)}</p>
             </div>
             <Button 
               onClick={() => onAddItem(item)}

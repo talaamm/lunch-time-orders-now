@@ -22,7 +22,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddItem }) => {
         <p className="text-sm text-gray-600">{item.description}</p>
       </CardContent>
       <CardFooter className="pt-2 flex items-center justify-between">
-        <p className="font-semibold text-navy-800">€{item.price.toFixed(2)}</p>
+        <p className="font-semibold text-navy-800">₪{item.price.toFixed(2)}</p>
         <Button 
           onClick={() => onAddItem(item)}
           size="sm"

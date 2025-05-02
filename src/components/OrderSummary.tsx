@@ -11,7 +11,7 @@ interface OrderSummaryProps {
   currencySymbol?: string;
 }
 
-const OrderSummary = ({ items, updateQuantity, updateNotes, removeItem, currencySymbol = "€" }: OrderSummaryProps) => {
+const OrderSummary = ({ items, updateQuantity, updateNotes, removeItem, currencySymbol = "₪" }: OrderSummaryProps) => {
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity, 
     0
