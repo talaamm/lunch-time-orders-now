@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    sourcemap: true,  // Add source maps for better debugging
-    outDir: 'dist',   // Make sure output directory is 'dist'
+    sourcemap: true,
+    outDir: 'dist',
   },
 }));
