@@ -43,5 +43,19 @@
     <div id="root"></div>
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="./src/main.tsx"></script>
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        // Try to find the close button by its ID
+        var closeBtn = document.getElementById('lovable-badge-close');
+        if (closeBtn) {
+          closeBtn.click();
+        }
+        // Optionally, also try to remove the badge element itself
+        var badge = document.getElementById('lovable-badge');
+        if (badge) {
+          badge.remove();
+        }
+      });
+    </script>
   </body>
 </html>
