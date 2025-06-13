@@ -13,3 +13,15 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+// Auto-close or remove the Lovable badge if present
+window.addEventListener('DOMContentLoaded', function() {
+  var closeBtn = document.getElementById('lovable-badge-close');
+  if (closeBtn) {
+    closeBtn.click();
+  }
+  var badge = document.getElementById('lovable-badge');
+  if (badge) {
+    badge.remove();
+  }
+});

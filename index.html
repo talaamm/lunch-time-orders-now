@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -45,17 +44,15 @@
     <script type="module" src="./src/main.tsx"></script>
     <script>
       window.addEventListener('DOMContentLoaded', function() {
-        // Try to find the close button by its ID
+        // Try to find and click the close button
         var closeBtn = document.getElementById('lovable-badge-close');
         if (closeBtn) {
           closeBtn.click();
-          console.log('closeBtn clicked');
         }
-        // Optionally, also try to remove the badge element itself
+        // As a fallback, try to remove the badge element itself
         var badge = document.getElementById('lovable-badge');
         if (badge) {
           badge.remove();
-          console.log('badge removed');
         }
       });
     </script>
