@@ -1,4 +1,3 @@
-
 export class NotificationService {
   private static instance: NotificationService;
   private swRegistration: ServiceWorkerRegistration | null = null;
@@ -167,7 +166,6 @@ export class NotificationService {
           badge: '/favicon.ico',
           tag: 'meal-ready',
           requireInteraction: true,
-          vibrate: [200, 100, 200],
           data: { url },
           // iOS Safari specific options
           silent: false,
@@ -179,8 +177,7 @@ export class NotificationService {
           body,
           icon: '/favicon.ico',
           tag: 'meal-ready',
-          requireInteraction: true,
-          vibrate: [200, 100, 200]
+          requireInteraction: true
         });
       }
 
