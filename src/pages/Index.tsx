@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -10,6 +9,7 @@ import MenuSection from "../components/MenuSection";
 import OrderSummary from "../components/OrderSummary";
 import { sendWhatsAppMessage } from "../utils/whatsAppService";
 import { saveOrder, getRecentOrders } from "../utils/orderStorage";
+import { NotificationService } from "../utils/notificationService";
 import { useNavigate } from "react-router-dom";
 import { Check, Clock, ShoppingBag } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,8 +37,17 @@ const Index = () => {
   const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [discountApplied, setDiscountApplied] = useState<number>(0);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   useEffect(() => {
+    // Initialize notification service
+    const initNotifications = async () => {
+      const notificationService = NotificationService.getInstance();
+      const enabled = await notificationService.initialize();
+      setNotificationsEnabled(enabled);
+    };
+    initNotifications();
+
     // Load admin settings from localStorage
     const savedSettings = localStorage.getItem("adminSettings");
     if (savedSettings) {
@@ -195,8 +204,14 @@ const Index = () => {
           discount: discountApplied
         };
         
-        saveOrder(orderDetails);
+        const savedOrder = saveOrder(orderDetails);
         setRecentOrders(getRecentOrders());
+
+        // Schedule pickup reminder notification
+        if (notificationsEnabled) {
+          const notificationService = NotificationService.getInstance();
+          await notificationService.schedulePickupReminder(pickupTime, savedOrder.id);
+        }
         
         setCartItems([]);
         setIsCheckoutOpen(false);

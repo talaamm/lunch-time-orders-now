@@ -1,4 +1,3 @@
-
 export interface MenuItem {
   id: string;
   name: string;
@@ -20,13 +19,14 @@ export interface AdminSettings {
 }
 
 export interface OrderDetails {
+  id?: string;
   name: string;
   isTakeaway: boolean;
   pickupTime: string;
   items: CartItem[];
   orderedAt: number;
   total: number;
-  discount?: number;  // Adding the discount property
+  discount: number;
 }
 
 export interface OrderSummaryProps {

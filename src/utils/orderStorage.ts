@@ -1,25 +1,33 @@
-
 import { OrderDetails } from "../types/menu";
 
 const ORDERS_STORAGE_KEY = 'cafeteria_recent_orders';
 const ORDER_EXPIRY_TIME = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
 
-export const saveOrder = (order: OrderDetails): void => {
+export const saveOrder = (order: OrderDetails): OrderDetails & { id: string } => {
   try {
     // Get existing orders
     const existingOrdersJSON = localStorage.getItem(ORDERS_STORAGE_KEY);
-    let orders: OrderDetails[] = existingOrdersJSON ? JSON.parse(existingOrdersJSON) : [];
+    let orders: (OrderDetails & { id: string })[] = existingOrdersJSON ? JSON.parse(existingOrdersJSON) : [];
     
-    // Add new order
-    orders.push({
+    // Generate a unique ID for the order
+    const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Add new order with ID
+    const orderWithId = {
       ...order,
+      id: orderId,
       orderedAt: Date.now()
-    });
+    };
+    
+    orders.push(orderWithId);
     
     // Store updated orders
     localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
+    
+    return orderWithId;
   } catch (error) {
     console.error("Error saving order to local storage:", error);
+    throw error;
   }
 };
 
