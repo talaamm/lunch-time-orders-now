@@ -1,12 +1,61 @@
 
+const CACHE_NAME = 'oasis-lounge-v1';
+const urlsToCache = [
+  '/',
+  '/manifest.json',
+  '/favicon.ico',
+  '/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png'
+];
+
+// Install event - cache resources
+self.addEventListener('install', function(event) {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(function(cache) {
+        return cache.addAll(urlsToCache);
+      })
+  );
+  self.skipWaiting();
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+// Fetch event - serve from cache, fallback to network
+self.addEventListener('fetch', function(event) {
+  event.respondWith(
+    caches.match(event.request)
+      .then(function(response) {
+        // Return cached version or fetch from network
+        return response || fetch(event.request);
+      }
+    )
+  );
+});
+
+// Push notification event
 self.addEventListener('push', function(event) {
+  console.log('Push event received:', event);
+  
   if (event.data) {
     const data = event.data.json();
     const options = {
       body: data.body,
-      icon: '/favicon.ico',
+      icon: '/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png',
       badge: '/favicon.ico',
-      vibrate: [200, 100, 200, 100, 200],
       tag: 'meal-ready',
       requireInteraction: true,
       actions: [
@@ -26,6 +75,7 @@ self.addEventListener('push', function(event) {
   }
 });
 
+// Notification click event
 self.addEventListener('notificationclick', function(event) {
   console.log('Notification clicked:', event);
   
@@ -38,7 +88,7 @@ self.addEventListener('notificationclick', function(event) {
   }
 });
 
-// Handle notification close
+// Notification close event
 self.addEventListener('notificationclose', function(event) {
   console.log('Notification was closed:', event);
 });

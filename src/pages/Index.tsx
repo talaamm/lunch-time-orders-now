@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import PWAInstallPrompt from "../components/PWAInstallPrompt";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -631,6 +632,9 @@ const Index = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
     </div>
   );
 };

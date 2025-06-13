@@ -1,3 +1,4 @@
+
 export class NotificationService {
   private static instance: NotificationService;
   private swRegistration: ServiceWorkerRegistration | null = null;
@@ -39,7 +40,7 @@ export class NotificationService {
     }
 
     try {
-      // For iOS Safari and other browsers that might have restrictions
+      // For iOS Safari, we need to request permission on user interaction
       const permission = await Notification.requestPermission();
       console.log('Permission request result:', permission);
       
@@ -61,17 +62,29 @@ export class NotificationService {
     }
   }
 
-  // New method to force re-request permissions
+  // Enhanced method to handle iOS Safari PWA requirements
   async toggleNotifications() {
     const currentPermission = Notification.permission;
     
     if (currentPermission === 'denied') {
-      // Browser has blocked notifications, user needs to manually enable in settings
-      alert('Notifications are blocked. Please enable them in your browser settings:\n\n' +
-            'Chrome: Settings > Privacy and security > Site Settings > Notifications\n' +
-            'Safari: Settings > Websites > Notifications\n' +
-            'Firefox: Settings > Privacy & Security > Permissions > Notifications');
-      return false;
+      // For iOS Safari PWA, provide specific instructions
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+      
+      if (isIOS && !isStandalone) {
+        alert('To enable notifications on iOS:\n\n' +
+              '1. Add this app to your Home Screen (Share → Add to Home Screen)\n' +
+              '2. Open the app from your Home Screen\n' +
+              '3. Try enabling notifications again\n\n' +
+              'Notifications only work in the installed PWA version on iOS.');
+        return false;
+      } else {
+        alert('Notifications are blocked. Please enable them in your browser settings:\n\n' +
+              'Chrome: Settings > Privacy and security > Site Settings > Notifications\n' +
+              'Safari: Settings > Websites > Notifications\n' +
+              'Firefox: Settings > Privacy & Security > Permissions > Notifications');
+        return false;
+      }
     }
     
     if (currentPermission === 'granted') {
@@ -158,23 +171,22 @@ export class NotificationService {
         return;
       }
 
-      // For cross-platform compatibility, try both service worker and direct notification
+      // For PWA and cross-platform compatibility
       if (this.swRegistration) {
         await this.swRegistration.showNotification(title, {
           body,
-          icon: '/favicon.ico',
+          icon: '/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png',
           badge: '/favicon.ico',
           tag: 'meal-ready',
           requireInteraction: true,
           data: { url },
-          // iOS Safari specific options
           silent: false
         });
       } else {
         // Fallback for browsers without service worker support
         new Notification(title, {
           body,
-          icon: '/favicon.ico',
+          icon: '/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png',
           tag: 'meal-ready',
           requireInteraction: true
         });
@@ -188,7 +200,7 @@ export class NotificationService {
       try {
         new Notification(title, {
           body,
-          icon: '/favicon.ico'
+          icon: '/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png'
         });
       } catch (fallbackError) {
         console.error('Fallback notification also failed:', fallbackError);
@@ -218,5 +230,15 @@ export class NotificationService {
   // Get current permission status as string
   getPermissionStatus() {
     return Notification.permission;
+  }
+
+  // Check if running as PWA
+  isPWA() {
+    return window.matchMedia('(display-mode: standalone)').matches;
+  }
+
+  // Check if iOS device
+  isIOSDevice() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent);
   }
 }
