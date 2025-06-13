@@ -3,7 +3,7 @@ import React from "react";
 import { CartItem } from "../types/menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, Trash2 } from "lucide-react";
 
 interface OrderItemProps {
   item: CartItem;
@@ -16,11 +16,11 @@ const OrderItem = ({ item, updateQuantity, updateNotes, removeItem }: OrderItemP
   return (
     <div className="border-b py-4">
       <div className="flex justify-between mb-2">
-        <div>
+        <div className="flex-1">
           <h3 className="font-medium">{item.name}</h3>
           <p className="text-sm text-gray-500">{item.category} • ₪{item.price.toFixed(2)}</p>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center space-x-2">
           <Button 
             variant="outline" 
             size="sm"
@@ -38,6 +38,14 @@ const OrderItem = ({ item, updateQuantity, updateNotes, removeItem }: OrderItemP
             onClick={() => updateQuantity(item.id, item.quantity + 1)}
           >
             <Plus className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 w-8 p-0 text-red-600 hover:bg-red-50"
+            onClick={() => removeItem(item.id)}
+          >
+            <Trash2 className="h-3 w-3" />
           </Button>
         </div>
       </div>

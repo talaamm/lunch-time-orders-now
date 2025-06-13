@@ -23,22 +23,10 @@ export class NotificationService {
       this.swRegistration = await navigator.serviceWorker.register('/sw.js');
       
       // Check current permission status
-      let permission = Notification.permission;
+      const permission = Notification.permission;
+      console.log('Current notification permission:', permission);
       
-      // If permission is default (not granted or denied), request it
-      if (permission === 'default') {
-        permission = await Notification.requestPermission();
-      }
-      
-      console.log('Notification permission:', permission);
-      
-      if (permission === 'granted') {
-        console.log('Notifications are enabled and ready!');
-        return true;
-      } else {
-        console.log('Notification permission denied or not granted');
-        return false;
-      }
+      return permission === 'granted';
     } catch (error) {
       console.error('Service Worker registration failed:', error);
       return false;
@@ -47,12 +35,25 @@ export class NotificationService {
 
   async requestPermission() {
     if (!('Notification' in window)) {
+      console.log('Notifications not supported in this browser');
       return false;
     }
 
-    const permission = await Notification.requestPermission();
-    console.log('Permission request result:', permission);
-    return permission === 'granted';
+    try {
+      const permission = await Notification.requestPermission();
+      console.log('Permission request result:', permission);
+      
+      if (permission === 'granted') {
+        // Show a test notification to confirm it's working
+        await this.showTestNotification();
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      return false;
+    }
   }
 
   async schedulePickupReminder(pickupTime: string, orderId: string, customerName: string) {
@@ -147,19 +148,21 @@ export class NotificationService {
   }
 
   // Test notification for debugging
-  async testNotification() {
+  async showTestNotification() {
     if (Notification.permission !== 'granted') {
-      const granted = await this.requestPermission();
-      if (!granted) {
-        console.log('Cannot show test notification - permission denied');
-        return;
-      }
+      console.log('Cannot show test notification - permission not granted');
+      return;
     }
 
     await this.showNotification(
-      '🔔 Test Notification',
-      'This is a test notification to check if everything works!',
+      '🔔 Notifications Enabled!',
+      'You will now receive alerts when your meal is ready.',
       '/'
     );
+  }
+
+  // Check current permission status
+  isPermissionGranted() {
+    return Notification.permission === 'granted';
   }
 }
