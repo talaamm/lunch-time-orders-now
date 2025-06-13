@@ -207,10 +207,10 @@ const Index = () => {
         const savedOrder = saveOrder(orderDetails);
         setRecentOrders(getRecentOrders());
 
-        // Schedule pickup reminder notification
+        // Schedule pickup notification at exact pickup time
         if (notificationsEnabled) {
           const notificationService = NotificationService.getInstance();
-          await notificationService.schedulePickupReminder(pickupTime, savedOrder.id);
+          await notificationService.schedulePickupReminder(pickupTime, savedOrder.id, customerName);
         }
         
         setCartItems([]);
@@ -220,7 +220,7 @@ const Index = () => {
         
         toast({
           title: "Order placed successfully",
-          description: `Your order will be ready at ${pickupTime}`,
+          description: `Your order will be ready at ${pickupTime}. You'll receive a notification when it's ready!`,
         });
       } else {
         throw new Error("Failed to send message");

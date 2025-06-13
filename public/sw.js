@@ -1,3 +1,4 @@
+
 self.addEventListener('push', function(event) {
   if (event.data) {
     const data = event.data.json();
@@ -5,7 +6,15 @@ self.addEventListener('push', function(event) {
       body: data.body,
       icon: '/favicon.ico',
       badge: '/favicon.ico',
-      vibrate: [100, 50, 100],
+      vibrate: [200, 100, 200, 100, 200],
+      tag: 'meal-ready',
+      requireInteraction: true,
+      actions: [
+        {
+          action: 'view',
+          title: 'View Order'
+        }
+      ],
       data: {
         url: data.url
       }
@@ -18,8 +27,18 @@ self.addEventListener('push', function(event) {
 });
 
 self.addEventListener('notificationclick', function(event) {
+  console.log('Notification clicked:', event);
+  
   event.notification.close();
-  event.waitUntil(
-    clients.openWindow(event.notification.data.url)
-  );
-}); 
+
+  if (event.action === 'view' || !event.action) {
+    event.waitUntil(
+      clients.openWindow(event.notification.data.url || '/')
+    );
+  }
+});
+
+// Handle notification close
+self.addEventListener('notificationclose', function(event) {
+  console.log('Notification was closed:', event);
+});
