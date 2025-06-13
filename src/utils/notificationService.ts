@@ -106,12 +106,6 @@ export class NotificationService {
         badge: '/favicon.ico',
         tag: 'meal-ready',
         requireInteraction: true,
-        actions: [
-          {
-            action: 'view',
-            title: 'View Order'
-          }
-        ],
         data: { url }
       });
 
