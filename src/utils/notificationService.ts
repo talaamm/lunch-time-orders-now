@@ -21,18 +21,49 @@ export class NotificationService {
 
     try {
       this.swRegistration = await navigator.serviceWorker.register('/sw.js');
-      const permission = await Notification.requestPermission();
+      
+      // Check current permission status
+      let permission = Notification.permission;
+      
+      // If permission is default (not granted or denied), request it
+      if (permission === 'default') {
+        permission = await Notification.requestPermission();
+      }
+      
       console.log('Notification permission:', permission);
-      return permission === 'granted';
+      
+      if (permission === 'granted') {
+        console.log('Notifications are enabled and ready!');
+        return true;
+      } else {
+        console.log('Notification permission denied or not granted');
+        return false;
+      }
     } catch (error) {
       console.error('Service Worker registration failed:', error);
       return false;
     }
   }
 
+  async requestPermission() {
+    if (!('Notification' in window)) {
+      return false;
+    }
+
+    const permission = await Notification.requestPermission();
+    console.log('Permission request result:', permission);
+    return permission === 'granted';
+  }
+
   async schedulePickupReminder(pickupTime: string, orderId: string, customerName: string) {
     if (!this.swRegistration) {
       console.error('Service Worker not registered');
+      return;
+    }
+
+    // Check permission again before scheduling
+    if (Notification.permission !== 'granted') {
+      console.log('No notification permission, skipping notification scheduling');
       return;
     }
 
@@ -117,6 +148,14 @@ export class NotificationService {
 
   // Test notification for debugging
   async testNotification() {
+    if (Notification.permission !== 'granted') {
+      const granted = await this.requestPermission();
+      if (!granted) {
+        console.log('Cannot show test notification - permission denied');
+        return;
+      }
+    }
+
     await this.showNotification(
       '🔔 Test Notification',
       'This is a test notification to check if everything works!',

@@ -11,7 +11,7 @@ import { sendWhatsAppMessage } from "../utils/whatsAppService";
 import { saveOrder, getRecentOrders } from "../utils/orderStorage";
 import { NotificationService } from "../utils/notificationService";
 import { useNavigate } from "react-router-dom";
-import { Check, Clock, ShoppingBag } from "lucide-react";
+import { Check, Clock, ShoppingBag, Bell, BellOff } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -38,6 +38,7 @@ const Index = () => {
   const [discountCode, setDiscountCode] = useState("");
   const [discountApplied, setDiscountApplied] = useState<number>(0);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
 
   useEffect(() => {
     // Initialize notification service
@@ -45,6 +46,11 @@ const Index = () => {
       const notificationService = NotificationService.getInstance();
       const enabled = await notificationService.initialize();
       setNotificationsEnabled(enabled);
+      
+      // Show notification prompt if not enabled and user hasn't seen it
+      if (!enabled && !localStorage.getItem('notificationPromptShown')) {
+        setShowNotificationPrompt(true);
+      }
     };
     initNotifications();
 
@@ -74,11 +80,6 @@ const Index = () => {
 
   const addItemToCart = (item: MenuItem) => {
     if (!adminSettings.isOpen) {
-      toast({
-        title: "Cafeteria Closed",
-        description: adminSettings.message,
-        variant: "destructive",
-      });
       return;
     }
     
@@ -93,11 +94,24 @@ const Index = () => {
         return [...prevItems, { ...item, quantity: 1, notes: "" }];
       }
     });
+  };
+
+  const enableNotifications = async () => {
+    const notificationService = NotificationService.getInstance();
+    const enabled = await notificationService.requestPermission();
+    setNotificationsEnabled(enabled);
+    setShowNotificationPrompt(false);
+    localStorage.setItem('notificationPromptShown', 'true');
     
-    toast({
-      title: "Added to order",
-      description: `${item.name} has been added to your order`,
-    });
+    if (enabled) {
+      // Test notification to confirm it works
+      await notificationService.testNotification();
+    }
+  };
+
+  const dismissNotificationPrompt = () => {
+    setShowNotificationPrompt(false);
+    localStorage.setItem('notificationPromptShown', 'true');
   };
 
   const updateItemQuantity = (id: string, quantity: number) => {
@@ -129,42 +143,15 @@ const Index = () => {
     const upperCode = code.toUpperCase();
     if (upperCode === "STAFF") {
       setDiscountApplied(50);
-      toast({
-        title: "Staff discount applied",
-        description: "50% discount has been applied to your order",
-      });
     } else if (upperCode === "STUDENT") {
       setDiscountApplied(5);
-      toast({
-        title: "Student discount applied",
-        description: "5% discount has been applied to your order",
-      });
     } else {
       setDiscountApplied(0);
-      toast({
-        title: "Invalid discount code",
-        description: "The discount code you entered is not valid",
-        variant: "destructive",
-      });
     }
   };
 
   const handleSubmitOrder = async () => {
-    if (!customerName.trim()) {
-      toast({
-        title: "Name required",
-        description: "Please enter your name to continue",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!pickupTime) {
-      toast({
-        title: "Pickup time required",
-        description: "Please select a pickup time",
-        variant: "destructive",
-      });
+    if (!customerName.trim() || !pickupTime) {
       return;
     }
 
@@ -217,21 +204,11 @@ const Index = () => {
         setIsCheckoutOpen(false);
         setDiscountCode("");
         setDiscountApplied(0);
-        
-        toast({
-          title: "Order placed successfully",
-          description: `Your order will be ready at ${pickupTime}. You'll receive a notification when it's ready!`,
-        });
       } else {
         throw new Error("Failed to send message");
       }
     } catch (error) {
       setOrderStatus("error");
-      toast({
-        title: "Order failed",
-        description: "There was an error processing your order. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -298,6 +275,37 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Notification Permission Prompt */}
+      {showNotificationPrompt && (
+        <div className="bg-blue-50 border-b border-blue-200 p-3">
+          <div className="container mx-auto px-4 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Bell className="h-5 w-5 text-blue-600" />
+              <p className="text-sm text-blue-800">
+                Enable notifications to get alerts when your meal is ready!
+              </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button 
+                size="sm" 
+                onClick={enableNotifications}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Enable
+              </Button>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={dismissNotificationPrompt}
+                className="text-blue-600 hover:bg-blue-100"
+              >
+                Not now
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-navy-800 text-white shadow-sm sticky top-0 z-20">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -310,6 +318,15 @@ const Index = () => {
             <h1 className="text-xl font-bold">ND Oasis Lounge</h1>
           </div>
           <div className="flex items-center space-x-3">
+            {/* Notification Status Indicator */}
+            <div className="flex items-center space-x-1">
+              {notificationsEnabled ? (
+                <Bell className="h-4 w-4 text-green-400" title="Notifications enabled" />
+              ) : (
+                <BellOff className="h-4 w-4 text-gray-400" title="Notifications disabled" />
+              )}
+            </div>
+            
             {recentOrders.length > 0 && (
               <Button 
                 variant="ghost" 
