@@ -321,9 +321,9 @@ const Index = () => {
             {/* Notification Status Indicator */}
             <div className="flex items-center space-x-1">
               {notificationsEnabled ? (
-                <Bell className="h-4 w-4 text-green-400" title="Notifications enabled" />
+                <Bell className="h-4 w-4 text-green-400" />
               ) : (
-                <BellOff className="h-4 w-4 text-gray-400" title="Notifications disabled" />
+                <BellOff className="h-4 w-4 text-gray-400" />
               )}
             </div>
             
