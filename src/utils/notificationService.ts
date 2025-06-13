@@ -2,7 +2,7 @@
 export class NotificationService {
   private static instance: NotificationService;
   private swRegistration: ServiceWorkerRegistration | null = null;
-  private scheduledNotifications: Map<string, number> = new Map();
+  private scheduledNotifications: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   private constructor() {}
 
@@ -104,9 +104,8 @@ export class NotificationService {
         body,
         icon: '/favicon.ico',
         badge: '/favicon.ico',
-        vibrate: [200, 100, 200, 100, 200],
         tag: 'meal-ready',
-        requireInteraction: true, // Keep notification visible until user interacts
+        requireInteraction: true,
         actions: [
           {
             action: 'view',
