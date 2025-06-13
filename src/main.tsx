@@ -19,9 +19,11 @@ window.addEventListener('DOMContentLoaded', function() {
   var closeBtn = document.getElementById('lovable-badge-close');
   if (closeBtn) {
     closeBtn.click();
+    console.log('closeBtn clicked');
   }
   var badge = document.getElementById('lovable-badge');
   if (badge) {
     badge.remove();
+    console.log('badge removed');
   }
 });
