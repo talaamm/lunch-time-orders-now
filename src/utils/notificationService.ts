@@ -168,8 +168,7 @@ export class NotificationService {
           requireInteraction: true,
           data: { url },
           // iOS Safari specific options
-          silent: false,
-          renotify: true
+          silent: false
         });
       } else {
         // Fallback for browsers without service worker support
