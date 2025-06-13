@@ -40,6 +40,7 @@ export class NotificationService {
     }
 
     try {
+      // For iOS Safari and other browsers that might have restrictions
       const permission = await Notification.requestPermission();
       console.log('Permission request result:', permission);
       
@@ -47,13 +48,41 @@ export class NotificationService {
         // Show a test notification to confirm it's working
         await this.showTestNotification();
         return true;
+      } else if (permission === 'denied') {
+        console.log('Notification permission denied by user');
+        return false;
+      } else {
+        console.log('Notification permission dismissed');
+        return false;
       }
       
-      return false;
     } catch (error) {
       console.error('Error requesting notification permission:', error);
       return false;
     }
+  }
+
+  // New method to force re-request permissions
+  async toggleNotifications() {
+    const currentPermission = Notification.permission;
+    
+    if (currentPermission === 'denied') {
+      // Browser has blocked notifications, user needs to manually enable in settings
+      alert('Notifications are blocked. Please enable them in your browser settings:\n\n' +
+            'Chrome: Settings > Privacy and security > Site Settings > Notifications\n' +
+            'Safari: Settings > Websites > Notifications\n' +
+            'Firefox: Settings > Privacy & Security > Permissions > Notifications');
+      return false;
+    }
+    
+    if (currentPermission === 'granted') {
+      // Already granted, show test notification
+      await this.showTestNotification();
+      return true;
+    }
+    
+    // Request permission (first time or default state)
+    return await this.requestPermission();
   }
 
   async schedulePickupReminder(pickupTime: string, orderId: string, customerName: string) {
@@ -123,8 +152,6 @@ export class NotificationService {
   }
 
   private async showNotification(title: string, body: string, url: string) {
-    if (!this.swRegistration) return;
-
     try {
       // Check if we have permission
       if (Notification.permission !== 'granted') {
@@ -132,18 +159,44 @@ export class NotificationService {
         return;
       }
 
-      await this.swRegistration.showNotification(title, {
-        body,
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        tag: 'meal-ready',
-        requireInteraction: true,
-        data: { url }
-      });
+      // For cross-platform compatibility, try both service worker and direct notification
+      if (this.swRegistration) {
+        await this.swRegistration.showNotification(title, {
+          body,
+          icon: '/favicon.ico',
+          badge: '/favicon.ico',
+          tag: 'meal-ready',
+          requireInteraction: true,
+          vibrate: [200, 100, 200],
+          data: { url },
+          // iOS Safari specific options
+          silent: false,
+          renotify: true
+        });
+      } else {
+        // Fallback for browsers without service worker support
+        new Notification(title, {
+          body,
+          icon: '/favicon.ico',
+          tag: 'meal-ready',
+          requireInteraction: true,
+          vibrate: [200, 100, 200]
+        });
+      }
 
       console.log('Notification shown:', title);
     } catch (error) {
       console.error('Error showing notification:', error);
+      
+      // Fallback to basic notification
+      try {
+        new Notification(title, {
+          body,
+          icon: '/favicon.ico'
+        });
+      } catch (fallbackError) {
+        console.error('Fallback notification also failed:', fallbackError);
+      }
     }
   }
 
@@ -164,5 +217,10 @@ export class NotificationService {
   // Check current permission status
   isPermissionGranted() {
     return Notification.permission === 'granted';
+  }
+
+  // Get current permission status as string
+  getPermissionStatus() {
+    return Notification.permission;
   }
 }

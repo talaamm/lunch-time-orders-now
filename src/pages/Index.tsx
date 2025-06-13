@@ -95,17 +95,24 @@ const Index = () => {
     });
   };
 
-  const enableNotifications = async () => {
+  const toggleNotifications = async () => {
     const notificationService = NotificationService.getInstance();
-    const enabled = await notificationService.requestPermission();
+    const enabled = await notificationService.toggleNotifications();
     setNotificationsEnabled(enabled);
-    setShowNotificationPrompt(false);
-    localStorage.setItem('notificationPromptShown', 'true');
     
-    if (enabled) {
-      // Test notification to confirm it works
-      await notificationService.showTestNotification();
+    if (!enabled && notificationService.getPermissionStatus() === 'denied') {
+      // Don't show the prompt again if user explicitly denied
+      localStorage.setItem('notificationPromptShown', 'true');
+      setShowNotificationPrompt(false);
+    } else if (enabled) {
+      // Hide prompt if notifications are now enabled
+      setShowNotificationPrompt(false);
+      localStorage.setItem('notificationPromptShown', 'true');
     }
+  };
+
+  const enableNotifications = async () => {
+    await toggleNotifications();
   };
 
   const dismissNotificationPrompt = () => {
@@ -276,19 +283,19 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Notification Permission Prompt */}
       {showNotificationPrompt && (
-        <div className="bg-blue-50 border-b border-blue-200 p-3">
-          <div className="container mx-auto px-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Bell className="h-5 w-5 text-blue-600" />
-              <p className="text-sm text-blue-800">
+        <div className="bg-blue-50 border-b border-blue-200 p-2 sm:p-3">
+          <div className="container mx-auto px-2 sm:px-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+              <p className="text-xs sm:text-sm text-blue-800">
                 Enable notifications to get alerts when your meal is ready!
               </p>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
               <Button 
                 size="sm" 
                 onClick={enableNotifications}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm flex-1 sm:flex-none"
               >
                 Enable
               </Button>
@@ -296,7 +303,7 @@ const Index = () => {
                 size="sm" 
                 variant="ghost" 
                 onClick={dismissNotificationPrompt}
-                className="text-blue-600 hover:bg-blue-100"
+                className="text-blue-600 hover:bg-blue-100 text-xs sm:text-sm flex-1 sm:flex-none"
               >
                 Not now
               </Button>
@@ -307,35 +314,44 @@ const Index = () => {
 
       {/* Header */}
       <header className="bg-navy-800 text-white shadow-sm sticky top-0 z-20">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <img 
               src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png" 
               alt="University Logo" 
-              className="h-10"
+              className="h-8 sm:h-10"
             />
-            <h1 className="text-xl font-bold">ND Oasis Lounge</h1>
+            <h1 className="text-lg sm:text-xl font-bold">ND Oasis Lounge</h1>
           </div>
-          <div className="flex items-center space-x-3">
-            {/* Notification Status Indicator */}
-            <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 sm:space-x-3">
+            {/* Notification Toggle Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleNotifications}
+              className="text-white hover:bg-navy-900 p-1 sm:p-2"
+              title={notificationsEnabled ? "Notifications enabled - click to toggle" : "Notifications disabled - click to enable"}
+            >
               {notificationsEnabled ? (
                 <Bell className="h-4 w-4 text-green-400" />
               ) : (
                 <BellOff className="h-4 w-4 text-gray-400" />
               )}
-            </div>
+              <span className="sr-only">
+                {notificationsEnabled ? "Disable notifications" : "Enable notifications"}
+              </span>
+            </Button>
             
             {recentOrders.length > 0 && (
               <Button 
                 variant="ghost" 
                 onClick={() => setIsOrderHistoryOpen(true)}
-                className="relative text-white hover:bg-navy-900"
+                className="relative text-white hover:bg-navy-900 p-1 sm:p-2"
                 size="sm"
               >
-                <Clock className="mr-1 h-4 w-4" />
-                <span className="hidden sm:inline">Recent Orders</span>
-                <span className="absolute -top-2 -right-2 bg-white text-navy-800 text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <Clock className="h-4 w-4" />
+                <span className="hidden md:inline ml-1 text-sm">Recent Orders</span>
+                <span className="absolute -top-1 -right-1 bg-white text-navy-800 text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center text-[10px] sm:text-xs">
                   {recentOrders.length}
                 </span>
               </Button>
@@ -343,20 +359,21 @@ const Index = () => {
             <Button 
               variant="ghost" 
               onClick={() => navigate("/admin")}
-              className="text-white hover:bg-navy-900"
+              className="text-white hover:bg-navy-900 p-1 sm:p-2"
               size="sm"
             >
-              Admin
+              <span className="text-sm">Admin</span>
             </Button>
             <Button 
               onClick={() => setIsCartOpen(true)}
-              className="relative text-white border-white hover:bg-navy-900"
+              className="relative text-white border-white hover:bg-navy-900 p-1 sm:p-2"
               variant="outline"
+              size="sm"
             >
-              <ShoppingBag className="h-5 w-5 sm:mr-1" />
-              <span className="hidden sm:inline">Order</span>
+              <ShoppingBag className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1 text-sm">Order</span>
               {cartItemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-white text-navy-800 text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-white text-navy-800 text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center text-[10px] sm:text-xs">
                   {cartItemCount}
                 </span>
               )}
@@ -366,15 +383,15 @@ const Index = () => {
       </header>
 
       {/* Category Navigation */}
-      <div className="bg-white border-b sticky top-[73px] z-10">
-        <div className="container mx-auto px-4 overflow-x-auto">
-          <div className="flex space-x-2 py-3">
+      <div className="bg-white border-b sticky top-[57px] sm:top-[73px] z-10">
+        <div className="container mx-auto px-2 sm:px-4 overflow-x-auto">
+          <div className="flex space-x-1 sm:space-x-2 py-2 sm:py-3">
             {categories.map(category => (
               <Button
                 key={category}
                 variant={selectedCategory === category ? "default" : "outline"}
                 onClick={() => setSelectedCategory(category)}
-                className={`whitespace-nowrap ${selectedCategory === category ? 'bg-navy-800 hover:bg-navy-900' : ''}`}
+                className={`whitespace-nowrap text-xs sm:text-sm ${selectedCategory === category ? 'bg-navy-800 hover:bg-navy-900' : ''}`}
                 size="sm"
               >
                 {category}
@@ -385,27 +402,27 @@ const Index = () => {
       </div>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-navy-800 mb-1">{selectedCategory || "Menu"}</h2>
-          <p className="text-gray-500">Available {timeAvailable}</p>
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-navy-800 mb-1">{selectedCategory || "Menu"}</h2>
+          <p className="text-sm sm:text-base text-gray-500">Available {timeAvailable}</p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
           {filteredItems.map((item) => (
             <div key={item.id} className="h-full">
               <Card className="h-full flex flex-col overflow-hidden hover:shadow-md transition-shadow">
-                <CardContent className="p-4 flex flex-col h-full">
-                  <div className="mb-4">
-                    <h3 className="text-lg font-semibold text-navy-800 mb-1">{item.name}</h3>
-                    <p className="text-sm text-gray-600 mt-2 flex-grow">{item.description}</p>
+                <CardContent className="p-3 sm:p-4 flex flex-col h-full">
+                  <div className="mb-3 sm:mb-4">
+                    <h3 className="text-base sm:text-lg font-semibold text-navy-800 mb-1">{item.name}</h3>
+                    <p className="text-xs sm:text-sm text-gray-600 mt-2 flex-grow">{item.description}</p>
                   </div>
                   <div className="mt-auto pt-2 flex items-center justify-between">
-                    <p className="font-semibold text-navy-800">₪{item.price.toFixed(2)}</p>
+                    <p className="font-semibold text-navy-800 text-sm sm:text-base">₪{item.price.toFixed(2)}</p>
                     <Button 
                       onClick={() => addItemToCart(item)}
                       size="sm"
-                      className="transition-transform hover:scale-105"
+                      className="transition-transform hover:scale-105 text-xs sm:text-sm"
                     >
                       Add to Order
                     </Button>
