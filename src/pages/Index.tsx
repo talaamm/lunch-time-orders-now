@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { menuItems, categories } from "../data/menuData";
@@ -105,7 +104,7 @@ const Index = () => {
     
     if (enabled) {
       // Test notification to confirm it works
-      await notificationService.testNotification();
+      await notificationService.showTestNotification();
     }
   };
 
