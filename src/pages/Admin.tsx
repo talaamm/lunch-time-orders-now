@@ -1,3 +1,4 @@
+
 import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,11 @@ const Admin = () => {
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [localSettings, setLocalSettings] = useState(adminSettings);
+  const [localSettings, setLocalSettings] = useState({
+    isOpen: true,
+    message: "Welcome to the University Cafeteria!",
+    authorizedIPs: [] as string[]
+  });
   
   // For demo purposes, we'll use a simple password
   const ADMIN_PASSWORD = "admin123";
@@ -23,8 +28,12 @@ const Admin = () => {
   useEffect(() => {
     console.log('Admin component - adminSettings changed:', adminSettings);
     console.log('Admin component - settingsVersion:', settingsVersion);
-    // Update local settings when adminSettings change
-    setLocalSettings(adminSettings);
+    // Force update local settings when adminSettings change
+    setLocalSettings({
+      isOpen: adminSettings.isOpen,
+      message: adminSettings.message,
+      authorizedIPs: adminSettings.authorizedIPs
+    });
   }, [adminSettings, settingsVersion]);
   
   useEffect(() => {
@@ -55,6 +64,20 @@ const Admin = () => {
         setCurrentIP("Unable to fetch IP");
       });
   }, []);
+
+  // iOS PWA specific input focus handler
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    console.log('Input focused in iOS PWA mode');
+    if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+      // Force focus and scroll into view for iOS PWA
+      setTimeout(() => {
+        e.target.focus();
+        e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        // Try to trigger keyboard
+        e.target.click();
+      }, 100);
+    }
+  };
   
   const handleLogin = () => {
     if (password === ADMIN_PASSWORD) {
@@ -105,11 +128,21 @@ const Admin = () => {
       });
     }
   };
+
+  const handleStatusChange = (checked: boolean) => {
+    console.log('Status toggle changed to:', checked);
+    setLocalSettings(prev => ({ ...prev, isOpen: checked }));
+  };
+
+  const handleMessageChange = (value: string) => {
+    console.log('Message changed to:', value);
+    setLocalSettings(prev => ({ ...prev, message: value }));
+  };
   
   const handleAddCurrentIP = () => {
     if (currentIP && !localSettings.authorizedIPs.includes(currentIP)) {
       const updatedIPs = [...localSettings.authorizedIPs, currentIP];
-      setLocalSettings({...localSettings, authorizedIPs: updatedIPs});
+      setLocalSettings(prev => ({ ...prev, authorizedIPs: updatedIPs }));
       setIsAuthorized(true);
       toast({
         title: "IP Added",
@@ -120,7 +153,7 @@ const Admin = () => {
   
   const handleRemoveIP = (ip: string) => {
     const updatedIPs = localSettings.authorizedIPs.filter(item => item !== ip);
-    setLocalSettings({...localSettings, authorizedIPs: updatedIPs});
+    setLocalSettings(prev => ({ ...prev, authorizedIPs: updatedIPs }));
     
     if (ip === currentIP) {
       setIsAuthorized(false);
@@ -149,8 +182,10 @@ const Admin = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onFocus={handleInputFocus}
                 placeholder="Enter admin password"
-                className="w-full"
+                className="w-full ios-input-fix"
+                style={{ fontSize: '16px' }}
               />
             </div>
             
@@ -208,10 +243,7 @@ const Admin = () => {
               </div>
               <Switch
                 checked={localSettings.isOpen}
-                onCheckedChange={(checked) => {
-                  console.log('Cafeteria status switch changed to:', checked);
-                  setLocalSettings({...localSettings, isOpen: checked});
-                }}
+                onCheckedChange={handleStatusChange}
               />
             </div>
             
@@ -220,12 +252,11 @@ const Admin = () => {
               <Textarea
                 id="message"
                 value={localSettings.message}
-                onChange={(e) => {
-                  console.log('Message changed to:', e.target.value);
-                  setLocalSettings({...localSettings, message: e.target.value});
-                }}
+                onChange={(e) => handleMessageChange(e.target.value)}
+                onFocus={handleInputFocus}
                 placeholder="Enter a message to display when the cafeteria is closed"
-                className="w-full"
+                className="w-full ios-input-fix"
+                style={{ fontSize: '16px' }}
               />
             </div>
             
