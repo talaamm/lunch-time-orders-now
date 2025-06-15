@@ -9,6 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
 
+// Type declaration for iOS Safari's standalone property
+declare global {
+  interface Navigator {
+    standalone?: boolean;
+  }
+}
+
 const Admin = () => {
   const navigate = useNavigate();
   const { adminSettings, updateAdminSettings, settingsVersion } = useAdminSettings();
@@ -29,11 +36,12 @@ const Admin = () => {
     console.log('Admin component - adminSettings changed:', adminSettings);
     console.log('Admin component - settingsVersion:', settingsVersion);
     // Force update local settings when adminSettings change
-    setLocalSettings({
+    setLocalSettings(prev => ({
+      ...prev,
       isOpen: adminSettings.isOpen,
       message: adminSettings.message,
-      authorizedIPs: adminSettings.authorizedIPs
-    });
+      authorizedIPs: prev.authorizedIPs // Keep existing authorized IPs as they're local
+    }));
   }, [adminSettings, settingsVersion]);
   
   useEffect(() => {
@@ -65,17 +73,32 @@ const Admin = () => {
       });
   }, []);
 
-  // iOS PWA specific input focus handler
+  // Enhanced iOS PWA input focus handler with proper type checking
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    console.log('Input focused in iOS PWA mode');
-    if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+    console.log('Input focused - checking if PWA mode');
+    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+    
+    if (isStandalone) {
+      console.log('PWA mode detected, applying iOS keyboard fixes');
+      
       // Force focus and scroll into view for iOS PWA
       setTimeout(() => {
         e.target.focus();
-        e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        // Try to trigger keyboard
+        e.target.scrollIntoView({ 
+          block: 'center', 
+          behavior: 'smooth' 
+        });
+        
+        // Additional attempts to trigger keyboard
         e.target.click();
+        e.target.select();
       }, 100);
+      
+      // Additional delay for stubborn cases
+      setTimeout(() => {
+        e.target.focus();
+        e.target.click();
+      }, 300);
     }
   };
   
