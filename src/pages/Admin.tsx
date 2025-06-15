@@ -1,4 +1,3 @@
-
 import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -73,28 +72,39 @@ const Admin = () => {
       });
   }, []);
 
-  // Enhanced iOS PWA input focus handler with proper type checking
+  // Enhanced iOS PWA input focus handler with proper type checking and safe access
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    console.log('Input focused - checking if PWA mode');
-    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-    
+    // Safely check for 'standalone' property and log the result
+    const isStandalone =
+      (typeof window.navigator !== "undefined" &&
+        "standalone" in window.navigator &&
+        (window.navigator as any).standalone === true) ||
+      window.matchMedia("(display-mode: standalone)").matches;
+
+    console.log(
+      "Input focused - PWA standalone check",
+      {
+        standalone: (window.navigator as any).standalone,
+        isStandalone: isStandalone,
+        displayModeStandalone: window.matchMedia("(display-mode: standalone)").matches,
+      }
+    );
+
     if (isStandalone) {
-      console.log('PWA mode detected, applying iOS keyboard fixes');
-      
-      // Force focus and scroll into view for iOS PWA
+      console.log("PWA mode detected, applying iOS keyboard fixes");
+
       setTimeout(() => {
         e.target.focus();
-        e.target.scrollIntoView({ 
-          block: 'center', 
-          behavior: 'smooth' 
+        e.target.scrollIntoView({
+          block: "center",
+          behavior: "smooth",
         });
-        
+
         // Additional attempts to trigger keyboard
         e.target.click();
         e.target.select();
       }, 100);
-      
-      // Additional delay for stubborn cases
+
       setTimeout(() => {
         e.target.focus();
         e.target.click();
