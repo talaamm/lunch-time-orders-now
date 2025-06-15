@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminSettings } from '@/types/menu';
 
@@ -79,10 +79,12 @@ export const useAdminSettings = () => {
         },
         (payload) => {
           console.log('Admin settings changed:', payload);
-          if (payload.new) {
+          // Type guard to ensure payload.new exists and has the expected properties
+          if (payload.new && typeof payload.new === 'object' && 'status' in payload.new) {
+            const newData = payload.new as { status: boolean; message?: string };
             setAdminSettings({
-              isOpen: payload.new.status,
-              message: payload.new.message || "Welcome to the University Cafeteria!",
+              isOpen: newData.status,
+              message: newData.message || "Welcome to the University Cafeteria!",
               authorizedIPs: []
             });
           }
