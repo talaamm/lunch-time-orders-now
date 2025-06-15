@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminSettings } from '@/types/menu';
 
@@ -10,6 +10,24 @@ export const useAdminSettings = () => {
     authorizedIPs: []
   });
   const [loading, setLoading] = useState(true);
+
+  // Notify service worker about settings changes
+  const notifyServiceWorker = useCallback((settings: AdminSettings) => {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      console.log('Notifying service worker of settings change:', settings);
+      navigator.serviceWorker.controller.postMessage({
+        type: 'ADMIN_SETTINGS_CHANGED',
+        settings: settings
+      });
+    }
+  }, []);
+
+  // Update admin settings state and notify service worker
+  const updateSettingsState = useCallback((newSettings: AdminSettings) => {
+    console.log('Updating admin settings state:', newSettings);
+    setAdminSettings(newSettings);
+    notifyServiceWorker(newSettings);
+  }, [notifyServiceWorker]);
 
   // Fetch admin settings from Supabase
   const fetchAdminSettings = async () => {
@@ -31,15 +49,7 @@ export const useAdminSettings = () => {
           message: data.message || "Welcome to the University Cafeteria!",
           authorizedIPs: []
         };
-        setAdminSettings(newSettings);
-        
-        // Notify service worker about settings change
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-          navigator.serviceWorker.controller.postMessage({
-            type: 'ADMIN_SETTINGS_CHANGED',
-            settings: newSettings
-          });
-        }
+        updateSettingsState(newSettings);
       }
     } catch (error) {
       console.error('Error fetching admin settings:', error);
@@ -64,17 +74,9 @@ export const useAdminSettings = () => {
         throw error;
       }
 
-      // Update local state
+      // Update local state and notify service worker
       const updatedSettings = { ...adminSettings, ...newSettings };
-      setAdminSettings(updatedSettings);
-      
-      // Notify service worker about settings change
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({
-          type: 'ADMIN_SETTINGS_CHANGED',
-          settings: updatedSettings
-        });
-      }
+      updateSettingsState(updatedSettings);
     } catch (error) {
       console.error('Error updating admin settings:', error);
       throw error;
@@ -86,12 +88,14 @@ export const useAdminSettings = () => {
 
     // Listen for messages from service worker
     const handleServiceWorkerMessage = (event: MessageEvent) => {
+      console.log('Received message from service worker:', event.data);
       if (event.data && event.data.type === 'ADMIN_SETTINGS_UPDATE') {
-        console.log('Received admin settings update from service worker:', event.data.data);
+        console.log('Applying admin settings update from service worker:', event.data.data);
         setAdminSettings(event.data.data);
       }
     };
 
+    // Register service worker message listener
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
     }
@@ -108,7 +112,7 @@ export const useAdminSettings = () => {
           filter: 'id=eq.1'
         },
         (payload) => {
-          console.log('Admin settings changed:', payload);
+          console.log('Real-time admin settings change detected:', payload);
           // Type guard to ensure payload.new exists and has the expected properties
           if (payload.new && typeof payload.new === 'object' && 'status' in payload.new) {
             const newData = payload.new as { status: boolean; message?: string };
@@ -117,15 +121,7 @@ export const useAdminSettings = () => {
               message: newData.message || "Welcome to the University Cafeteria!",
               authorizedIPs: []
             };
-            setAdminSettings(newSettings);
-            
-            // Notify service worker about settings change
-            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-              navigator.serviceWorker.controller.postMessage({
-                type: 'ADMIN_SETTINGS_CHANGED',
-                settings: newSettings
-              });
-            }
+            updateSettingsState(newSettings);
           }
         }
       )
@@ -137,7 +133,7 @@ export const useAdminSettings = () => {
         navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
       }
     };
-  }, []);
+  }, [updateSettingsState]);
 
   return {
     adminSettings,

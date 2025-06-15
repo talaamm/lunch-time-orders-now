@@ -48,9 +48,12 @@ self.addEventListener('fetch', function(event) {
 
 // Handle messages from the main thread
 self.addEventListener('message', function(event) {
+  console.log('Service worker received message:', event.data);
+  
   if (event.data && event.data.type === 'ADMIN_SETTINGS_CHANGED') {
-    // Send message to all clients about admin settings change
-    self.clients.matchAll().then(function(clients) {
+    // Broadcast message to all clients about admin settings change
+    self.clients.matchAll({ includeUncontrolled: true }).then(function(clients) {
+      console.log('Broadcasting to', clients.length, 'clients');
       clients.forEach(function(client) {
         client.postMessage({
           type: 'ADMIN_SETTINGS_UPDATE',
