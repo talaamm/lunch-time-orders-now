@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -90,79 +89,38 @@
   display: none !important;
 }
 
-/* Enhanced iOS PWA keyboard fixes */
+/* --- iOS/mobile fixes --- */
+
+/* Only prevent zoom, allow focusing and scrolling/tapping as normal.
+   Remove any global overflow, fixed, or forced input hacks.
+   Retain font size for input/textarea fields for iOS virtual keyboard. */
+
+.ios-input-fix,
+input,
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* Remove over-complicated .ios-input-fix focus hacks, just make sure font size and user-select are set. */
 .ios-input-fix {
   -webkit-user-select: text !important;
   user-select: text !important;
-  -webkit-touch-callout: default !important;
-  touch-callout: default !important;
+  font-size: 16px !important;
+  outline: none !important;
   -webkit-appearance: none !important;
   appearance: none !important;
   border-radius: 4px !important;
-  font-size: 16px !important;
-  outline: none !important;
   -webkit-tap-highlight-color: transparent !important;
   transform: translateZ(0) !important;
   -webkit-transform: translateZ(0) !important;
 }
 
-/* Force iOS to show keyboard */
-@supports (-webkit-touch-callout: none) {
-  .ios-input-fix:focus {
-    position: relative !important;
-    z-index: 999 !important;
-    -webkit-user-select: text !important;
-    user-select: text !important;
-    -webkit-touch-callout: default !important;
-    touch-callout: default !important;
-  }
-}
+/* Remove blocks that set position: fixed or overflow: hidden */
 
-/* iOS PWA specific fixes for input fields */
-@supports (-webkit-touch-callout: none) {
-  /* iOS Safari specific styles */
-  input, textarea, select {
-    font-size: 16px !important;
-    -webkit-appearance: none;
-    -webkit-border-radius: 0;
-    border-radius: 0;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-perspective: 1000;
-    perspective: 1000;
-  }
-  
-  input:focus, textarea:focus, select:focus {
-    -webkit-user-select: text;
-    user-select: text;
-    -webkit-touch-callout: default;
-    touch-callout: default;
-  }
-}
+/* Remove all @supports and @media extras related to focus and input hacks except font size */
 
-/* Additional iOS PWA keyboard handling */
-@media screen and (max-width: 768px) {
-  .ios-input-fix {
-    position: relative;
-    z-index: 1;
-  }
-  
-  .ios-input-fix input,
-  .ios-input-fix textarea {
-    -webkit-user-select: text !important;
-    user-select: text !important;
-    -webkit-touch-callout: default !important;
-    touch-callout: default !important;
-    -webkit-appearance: none !important;
-    appearance: none !important;
-    border-radius: 4px !important;
-    font-size: 16px !important;
-  }
-}
-
-/* Prevent zoom on input focus */
+/* Prevent zoom on input fields on all mobile */
 @media screen and (max-device-width: 768px) {
   input[type="text"],
   input[type="password"],
