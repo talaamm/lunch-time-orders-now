@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import PWAInstallPrompt from "../components/PWAInstallPrompt";
 import { useAdminSettings } from "../hooks/useAdminSettings";
+import TestInput from "../components/TestInput";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -423,6 +424,11 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        {/* Test Input Component - Remove after testing */}
+        <div className="mb-6">
+          <TestInput />
+        </div>
+
         <div className="mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl font-bold text-navy-800 mb-1">{selectedCategory || "Menu"}</h2>
           <p className="text-sm sm:text-base text-gray-500">Available {timeAvailable}</p>

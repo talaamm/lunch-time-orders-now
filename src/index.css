@@ -7,34 +7,24 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
-
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
-
     --radius: 0.5rem;
-
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -88,9 +78,6 @@
     width: 100%;
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
-    overflow-x: unset !important;
-    overflow-y: auto !important;
-    position: static !important;
   }
 
   body {
@@ -99,13 +86,10 @@
     height: 100%;
     padding-bottom: 2.5rem;
     font-size: 16px;
-    overflow-x: unset !important;
-    overflow-y: auto !important;
-    position: static !important;
   }
 }
 
-/* iOS PWA Input Fix - Critical for typing functionality */
+/* iOS PWA Critical Input Fixes */
 input, textarea, select {
   font-size: 16px !important;
   -webkit-user-select: text !important;
@@ -114,74 +98,51 @@ input, textarea, select {
   appearance: none !important;
   touch-action: manipulation !important;
   pointer-events: auto !important;
-  z-index: auto !important;
   background-color: white !important;
   border-radius: 4px;
   outline: none;
   position: relative !important;
+  z-index: 1 !important;
+  /* Remove any potential interference */
+  transform: none !important;
+  -webkit-transform: none !important;
+  /* Ensure inputs are interactive */
+  cursor: text !important;
 }
 
-/* Ensure inputs work in all contexts */
-.ios-input-fix,
-input.ios-input-fix,
-textarea.ios-input-fix {
-  font-size: 16px !important;
-  -webkit-user-select: text !important;
-  user-select: text !important;
+/* Specific fixes for dialogs and modals */
+[data-radix-dialog-content] input,
+[data-radix-dialog-content] textarea,
+[data-radix-dialog-overlay] + div input,
+[data-radix-dialog-overlay] + div textarea {
   pointer-events: auto !important;
   touch-action: manipulation !important;
-  z-index: 1 !important;
+  z-index: 9999 !important;
+  font-size: 16px !important;
   background-color: white !important;
+  -webkit-user-select: text !important;
+  user-select: text !important;
   position: relative !important;
 }
 
-/* Modal and Dialog Input Fixes */
-[data-radix-dialog-content] input,
-[data-radix-dialog-content] textarea,
-[data-radix-dialog-content] select {
-  pointer-events: auto !important;
-  touch-action: manipulation !important;
-  z-index: 1 !important;
-  font-size: 16px !important;
-  background-color: white !important;
-}
-
-/* Ensure dialog overlays don't block inputs */
+/* Ensure overlays don't block inputs */
 [data-radix-dialog-overlay] {
   pointer-events: none !important;
 }
 
 [data-radix-dialog-content] {
   pointer-events: auto !important;
-  z-index: 1000 !important;
+  z-index: 9998 !important;
 }
 
 /* Mobile responsive fixes */
-.min-h-screen,
-[class*="min-h-screen"] {
-  min-height: 100dvh;
-  min-height: calc(100dvh - env(safe-area-inset-bottom, 0));
-  padding-bottom: env(safe-area-inset-bottom, 2.5rem);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
-  box-sizing: border-box;
-}
-
 @media (max-width: 768px) {
   html, body, #root {
     padding-top: 1.5rem;
     padding-bottom: env(safe-area-inset-bottom, 2.5rem);
     min-height: 100dvh;
     height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
     background: #f6f8fa;
-    position: static !important;
-    overflow-y: auto !important;
   }
   
   .container {
@@ -197,16 +158,12 @@ textarea.ios-input-fix {
   }
   
   .p-8, .p-6 {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    padding-top: 1.25rem !important;
-    padding-bottom: 1.25rem !important;
+    padding: 1rem !important;
   }
 }
 
 /* iOS Standalone PWA specific fixes */
 @media all and (display-mode: standalone) {
-  /* Force all inputs to be interactive */
   input, textarea, select {
     -webkit-user-select: text !important;
     user-select: text !important;
@@ -216,6 +173,9 @@ textarea.ios-input-fix {
     background-color: white !important;
     z-index: 1 !important;
     position: relative !important;
+    /* Critical: Remove any transform that might interfere */
+    -webkit-transform: translateZ(0) !important;
+    transform: translateZ(0) !important;
   }
   
   /* Ensure form containers don't interfere */
