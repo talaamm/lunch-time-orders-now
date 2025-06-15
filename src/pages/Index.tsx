@@ -48,7 +48,7 @@ const Index = () => {
       const notificationService = NotificationService.getInstance();
       const enabled = await notificationService.initialize();
       setNotificationsEnabled(enabled);
-      
+
       // Show notification prompt if not enabled and user hasn't seen it
       if (!enabled && !localStorage.getItem('notificationPromptShown')) {
         setShowNotificationPrompt(true);
@@ -59,7 +59,7 @@ const Index = () => {
     // Get current time to determine default category
     const now = new Date();
     const hours = now.getHours();
-    
+
     if (hours >= 7 && hours < 11) {
       setSelectedCategory("Breakfast");
     } else if (hours >= 11 && hours < 17) {
@@ -78,12 +78,12 @@ const Index = () => {
     if (!adminSettings.isOpen) {
       return;
     }
-    
+
     setCartItems(prevItems => {
       const existingItem = prevItems.find(i => i.id === item.id);
-      
+
       if (existingItem) {
-        return prevItems.map(i => 
+        return prevItems.map(i =>
           i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
         );
       } else {
@@ -96,7 +96,7 @@ const Index = () => {
     const notificationService = NotificationService.getInstance();
     const enabled = await notificationService.toggleNotifications();
     setNotificationsEnabled(enabled);
-    
+
     if (!enabled && notificationService.getPermissionStatus() === 'denied') {
       // Don't show the prompt again if user explicitly denied
       localStorage.setItem('notificationPromptShown', 'true');
@@ -122,17 +122,17 @@ const Index = () => {
       removeItemFromCart(id);
       return;
     }
-    
-    setCartItems(prevItems => 
-      prevItems.map(item => 
+
+    setCartItems(prevItems =>
+      prevItems.map(item =>
         item.id === id ? { ...item, quantity } : item
       )
     );
   };
 
   const updateItemNotes = (id: string, notes: string) => {
-    setCartItems(prevItems => 
-      prevItems.map(item => 
+    setCartItems(prevItems =>
+      prevItems.map(item =>
         item.id === id ? { ...item, notes } : item
       )
     );
@@ -159,17 +159,17 @@ const Index = () => {
     }
 
     setOrderStatus("processing");
-    
+
     // Generate order summary for message
-    const orderSummary = cartItems.map(item => 
+    const orderSummary = cartItems.map(item =>
       `${item.quantity}x ${item.name} ${item.notes ? `(${item.notes})` : ''}`
     ).join('\n');
-    
+
     const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const discountedTotal = discountApplied > 0 
-      ? totalAmount * (1 - discountApplied/100) 
+    const discountedTotal = discountApplied > 0
+      ? totalAmount * (1 - discountApplied / 100)
       : totalAmount;
-    
+
     try {
       // Send message
       const sentSuccessfully = await sendWhatsAppMessage(
@@ -179,10 +179,10 @@ const Index = () => {
         discountedTotal,
         discountApplied
       );
-      
+
       if (sentSuccessfully) {
         setOrderStatus("success");
-        
+
         // Save order to local storage
         const orderDetails: OrderDetails = {
           name: customerName,
@@ -193,7 +193,7 @@ const Index = () => {
           total: discountedTotal,
           discount: discountApplied
         };
-        
+
         const savedOrder = saveOrder(orderDetails);
         setRecentOrders(getRecentOrders());
 
@@ -202,7 +202,7 @@ const Index = () => {
           const notificationService = NotificationService.getInstance();
           await notificationService.schedulePickupReminder(pickupTime, savedOrder.id, customerName);
         }
-        
+
         setCartItems([]);
         setIsCheckoutOpen(false);
         setDiscountCode("");
@@ -215,18 +215,18 @@ const Index = () => {
     }
   };
 
-  const filteredItems = selectedCategory 
+  const filteredItems = selectedCategory
     ? menuItems.filter(item => item.category === selectedCategory)
     : menuItems;
-  
-  const timeAvailable = selectedCategory === "Breakfast" ? "7-11am" : 
-                        selectedCategory === "Lunch" ? "11am-5pm" : 
-                        selectedCategory === "Dinner" ? "5-9pm" : "7am-9pm";
+
+  const timeAvailable = selectedCategory === "Breakfast" ? "7-11am" :
+    selectedCategory === "Lunch" ? "11am-5pm" :
+      selectedCategory === "Dinner" ? "5-9pm" : "7am-9pm";
 
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const discountedTotal = discountApplied > 0 
-    ? totalAmount * (1 - discountApplied/100) 
+  const discountedTotal = discountApplied > 0
+    ? totalAmount * (1 - discountApplied / 100)
     : totalAmount;
 
   // Format date for display
@@ -239,9 +239,9 @@ const Index = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <img 
-            src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png" 
-            alt="University Logo" 
+          <img
+            src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png"
+            alt="University Logo"
             className="h-32 mx-auto mb-6"
           />
           <p className="text-gray-600">Loading...</p>
@@ -257,15 +257,15 @@ const Index = () => {
         <header className="bg-navy-800 text-white shadow-sm">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <img 
-                src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png" 
-                alt="University Logo" 
+              <img
+                src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png"
+                alt="University Logo"
                 className="h-10"
               />
               <h1 className="text-xl font-bold">ND Oasis Lounge</h1>
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => navigate("/admin")}
               className="text-white border-white hover:bg-navy-900"
             >
@@ -273,12 +273,12 @@ const Index = () => {
             </Button>
           </div>
         </header>
-        
+
         <div className="flex-grow flex items-center justify-center p-4">
           <div className="max-w-md text-center">
-            <img 
-              src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png" 
-              alt="University Logo" 
+            <img
+              src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png"
+              alt="University Logo"
               className="h-32 mx-auto mb-6"
             />
             <h2 className="text-2xl font-bold text-navy-800 mb-4">Cafeteria Currently Closed</h2>
@@ -305,16 +305,16 @@ const Index = () => {
               </p>
             </div>
             <div className="flex items-center space-x-2 w-full sm:w-auto">
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 onClick={enableNotifications}
                 className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm flex-1 sm:flex-none"
               >
                 Enable
               </Button>
-              <Button 
-                size="sm" 
-                variant="ghost" 
+              <Button
+                size="sm"
+                variant="ghost"
                 onClick={dismissNotificationPrompt}
                 className="text-blue-600 hover:bg-blue-100 text-xs sm:text-sm flex-1 sm:flex-none"
               >
@@ -329,12 +329,12 @@ const Index = () => {
       <header className="bg-navy-800 text-white shadow-sm sticky top-0 z-20">
         <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <img 
-              src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png" 
-              alt="University Logo" 
+            <img
+              src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png"
+              alt="University Logo"
               className="h-8 sm:h-10"
             />
-            <h1 className="text-lg sm:text-xl font-bold">ND Oasis Lounge</h1>
+            <h1 className="text-lg sm:text-xl font-bold">Latest Oasis Lounge</h1> // modified
           </div>
           <div className="flex items-center space-x-1 sm:space-x-3">
             {/* Notification Toggle Button */}
@@ -354,10 +354,10 @@ const Index = () => {
                 {notificationsEnabled ? "Disable notifications" : "Enable notifications"}
               </span>
             </Button>
-            
+
             {recentOrders.length > 0 && (
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 onClick={() => setIsOrderHistoryOpen(true)}
                 className="relative text-white hover:bg-navy-900 p-1 sm:p-2"
                 size="sm"
@@ -369,15 +369,15 @@ const Index = () => {
                 </span>
               </Button>
             )}
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={() => navigate("/admin")}
               className="text-white hover:bg-navy-900 p-1 sm:p-2"
               size="sm"
             >
               <span className="text-sm">Admin</span>
             </Button>
-            <Button 
+            <Button
               onClick={() => setIsCartOpen(true)}
               className="relative text-white border-white hover:bg-navy-900 p-1 sm:p-2"
               variant="outline"
@@ -420,7 +420,7 @@ const Index = () => {
           <h2 className="text-xl sm:text-2xl font-bold text-navy-800 mb-1">{selectedCategory || "Menu"}</h2>
           <p className="text-sm sm:text-base text-gray-500">Available {timeAvailable}</p>
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
           {filteredItems.map((item) => (
             <div key={item.id} className="h-full">
@@ -432,7 +432,7 @@ const Index = () => {
                   </div>
                   <div className="mt-auto pt-2 flex items-center justify-between">
                     <p className="font-semibold text-navy-800 text-sm sm:text-base">₪{item.price.toFixed(2)}</p>
-                    <Button 
+                    <Button
                       onClick={() => addItemToCart(item)}
                       size="sm"
                       className="transition-transform hover:scale-105 text-xs sm:text-sm"
@@ -452,9 +452,9 @@ const Index = () => {
         <SheetContent className="sm:max-w-md">
           <SheetHeader className="border-b pb-4">
             <div className="flex items-center">
-              <img 
-                src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png" 
-                alt="University Logo" 
+              <img
+                src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png"
+                alt="University Logo"
                 className="h-8 mr-2"
               />
               <SheetTitle>Your Order</SheetTitle>
@@ -469,7 +469,7 @@ const Index = () => {
                   <p className="text-gray-500">Add items from the menu to start your order</p>
                 </div>
               ) : (
-                <OrderSummary 
+                <OrderSummary
                   items={cartItems}
                   updateQuantity={updateItemQuantity}
                   updateNotes={updateItemNotes}
@@ -478,14 +478,14 @@ const Index = () => {
                 />
               )}
             </div>
-            
+
             {cartItems.length > 0 && (
               <div className="pt-4 border-t mt-auto">
                 <div className="flex justify-between font-bold mb-4">
                   <span>Total</span>
                   <span>₪{totalAmount.toFixed(2)}</span>
                 </div>
-                <Button 
+                <Button
                   onClick={() => {
                     setIsCartOpen(false);
                     setIsCheckoutOpen(true);
@@ -505,15 +505,15 @@ const Index = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <div className="flex items-center justify-center mb-2">
-              <img 
-                src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png" 
-                alt="University Logo" 
+              <img
+                src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png"
+                alt="University Logo"
                 className="h-10 mr-2"
               />
               <DialogTitle>Complete Your Order</DialogTitle>
             </div>
           </DialogHeader>
-          
+
           <div className="mt-6 space-y-4">
             <div>
               <Label htmlFor="name" className="text-sm font-medium">Your Name</Label>
@@ -525,16 +525,16 @@ const Index = () => {
                 className="mt-1"
               />
             </div>
-            
+
             <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="takeaway" 
-                checked={isTakeaway} 
+              <Checkbox
+                id="takeaway"
+                checked={isTakeaway}
                 onCheckedChange={(checked) => setIsTakeaway(checked === true)}
               />
               <Label htmlFor="takeaway" className="text-sm font-medium">Takeaway Order</Label>
             </div>
-            
+
             <div>
               <Label htmlFor="pickup-time" className="text-sm font-medium">Pickup Time</Label>
               <Input
@@ -545,7 +545,7 @@ const Index = () => {
                 className="mt-1"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="discount-code" className="text-sm font-medium">Discount Code</Label>
               <div className="flex gap-2 mt-1">
@@ -556,7 +556,7 @@ const Index = () => {
                   placeholder="Enter code (STAFF/STUDENT)"
                   className="flex-grow"
                 />
-                <Button 
+                <Button
                   onClick={() => applyDiscount(discountCode)}
                   variant="outline"
                 >
@@ -569,7 +569,7 @@ const Index = () => {
                 </p>
               )}
             </div>
-            
+
             <div className="pt-4 border-t">
               {discountApplied > 0 && (
                 <div className="flex justify-between text-sm mb-2">
@@ -581,7 +581,7 @@ const Index = () => {
                 <span>Total{discountApplied > 0 ? ` (${discountApplied}% off)` : ""}</span>
                 <span>₪{discountedTotal.toFixed(2)}</span>
               </div>
-              <Button 
+              <Button
                 onClick={handleSubmitOrder}
                 className="w-full bg-navy-800 hover:bg-navy-900"
                 disabled={orderStatus === "processing"}
@@ -592,14 +592,14 @@ const Index = () => {
           </div>
         </DialogContent>
       </Dialog>
-      
+
       {/* Recent Orders Dialog */}
       <Dialog open={isOrderHistoryOpen} onOpenChange={setIsOrderHistoryOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Your Recent Orders</DialogTitle>
           </DialogHeader>
-          
+
           <div className="max-h-[70vh] overflow-y-auto pr-2">
             {recentOrders.map((order, index) => (
               <Card key={index} className="mb-4 overflow-hidden">
@@ -626,7 +626,7 @@ const Index = () => {
                       <p className="text-xs text-gray-500">Ready at {order.pickupTime}</p>
                     </div>
                   </div>
-                  
+
                   <div className="border-t pt-2 mt-2">
                     <p className="text-xs text-gray-700 font-medium mb-1">Order Items:</p>
                     <ul className="text-sm">
