@@ -17,6 +17,7 @@ declare global {
 
 const Admin = () => {
   const navigate = useNavigate();
+  const [initialized, setInitialized] = useState(false);
   const { adminSettings, updateAdminSettings, settingsVersion } = useAdminSettings();
   const [currentIP, setCurrentIP] = useState<string>("");
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
@@ -31,17 +32,21 @@ const Admin = () => {
   // For demo purposes, we'll use a simple password
   const ADMIN_PASSWORD = "admin123";
   
+  // Only initialize local editable form state ONCE from adminSettings
   useEffect(() => {
-    console.log('Admin component - adminSettings changed:', adminSettings);
-    console.log('Admin component - settingsVersion:', settingsVersion);
-    // Force update local settings when adminSettings change
-    setLocalSettings(prev => ({
-      ...prev,
-      isOpen: adminSettings.isOpen,
-      message: adminSettings.message,
-      authorizedIPs: prev.authorizedIPs // Keep existing authorized IPs as they're local
-    }));
-  }, [adminSettings, settingsVersion]);
+    if (!initialized) {
+      setLocalSettings(prev => ({
+        ...prev,
+        isOpen: adminSettings.isOpen,
+        message: adminSettings.message,
+        // Don't overwrite local IPs
+        authorizedIPs: prev.authorizedIPs
+      }));
+      setInitialized(true);
+      console.log("Initialized localSettings from remote adminSettings", adminSettings);
+    }
+    // If you want to add a "Refresh" button to force reload, setInitialized(false)
+  }, [adminSettings, settingsVersion, initialized]);
   
   useEffect(() => {
     // Load authorized IPs from localStorage (keeping this local since it's just for demo)
