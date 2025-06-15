@@ -209,3 +209,88 @@ select {
     padding-bottom: 1.25rem !important;
   }
 }
+
+/* iOS Standalone PWA: unblock all inputs in dialogs and overlays */
+@media all and (display-mode: standalone), (max-width: 600px) {
+  .dialog-content input,
+  .dialog-content textarea,
+  .dialog-content select,
+  .sheet-content input,
+  .sheet-content textarea,
+  .sheet-content select,
+  .modal input,
+  .modal textarea,
+  .modal select,
+  .ios-input-fix {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    z-index: 1 !important;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    font-size: 16px !important;
+    background: #fff;
+    outline: inherit;
+    opacity: 1 !important;
+  }
+
+  /* Also fix their containers just in case */
+  .dialog-content,
+  .sheet-content,
+  .modal,
+  .DrawerRoot,
+  .DialogOverlay {
+    pointer-events: auto !important;
+    z-index: 1000 !important;
+    position: fixed;
+  }
+
+  /* Fix the main overlay/backdrop so it does NOT block events */
+  .DialogOverlay,
+  .SheetOverlay,
+  .modal-backdrop {
+    pointer-events: none !important;
+    background: rgba(0,0,0,0.4) !important; /* Still show overlay visually */
+    z-index: 999 !important;
+  }
+
+  /* Fix for modal/dialog containers in shadcn/ui, radix-ui, or custom */
+  .DialogContent,
+  .SheetContent {
+    pointer-events: auto !important;
+    z-index: 1001 !important;
+  }
+}
+
+/* Fix all modal/dialog/modal containers to never block pointer/tap events on inputs */
+.dialog-content *,
+.sheet-content *,
+.modal *,
+.ios-input-fix {
+  pointer-events: auto !important;
+}
+
+/* Sometimes the focus gets "stolen" so we re-trigger it on tap for PWA on iOS */
+@media all and (display-mode: standalone), (max-width: 600px) {
+  input, textarea, select, .ios-input-fix {
+    -webkit-tap-highlight-color: transparent;
+    caret-color: #222;
+    background: #fff;
+  }
+}
+
+/* Extra: help iOS distinguish these fields */
+input, textarea, select, .ios-input-fix {
+  font-size: 16px !important;
+  touch-action: manipulation !important;
+  z-index: auto;
+  outline: inherit;
+}
+
+/* Ensure overlays never block the content inside */
+.DialogOverlay, .SheetOverlay, .modal-backdrop {
+  pointer-events: none !important;
+}
+/* But the content itself can get pointer-events */
+.DialogContent, .SheetContent, .dialog-content, .sheet-content, .modal {
+  pointer-events: auto !important;
+}
