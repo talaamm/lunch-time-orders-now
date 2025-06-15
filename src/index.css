@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -87,10 +88,8 @@
     width: 100%;
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
-    /* Remove forced overflow/scroll restrictions */
     overflow-x: unset !important;
     overflow-y: auto !important;
-    /* Ensure root is a normal scrollable block/flex, not fixed */
     position: static !important;
   }
 
@@ -100,14 +99,64 @@
     height: 100%;
     padding-bottom: 2.5rem;
     font-size: 16px;
-    /* Remove redundant or problematic properties */
     overflow-x: unset !important;
     overflow-y: auto !important;
     position: static !important;
   }
 }
 
-/* Always ensure 100vh works well on mobile with safe-area-inset support */
+/* iOS PWA Input Fix - Critical for typing functionality */
+input, textarea, select {
+  font-size: 16px !important;
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  touch-action: manipulation !important;
+  pointer-events: auto !important;
+  z-index: auto !important;
+  background-color: white !important;
+  border-radius: 4px;
+  outline: none;
+  position: relative !important;
+}
+
+/* Ensure inputs work in all contexts */
+.ios-input-fix,
+input.ios-input-fix,
+textarea.ios-input-fix {
+  font-size: 16px !important;
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  z-index: 1 !important;
+  background-color: white !important;
+  position: relative !important;
+}
+
+/* Modal and Dialog Input Fixes */
+[data-radix-dialog-content] input,
+[data-radix-dialog-content] textarea,
+[data-radix-dialog-content] select {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  z-index: 1 !important;
+  font-size: 16px !important;
+  background-color: white !important;
+}
+
+/* Ensure dialog overlays don't block inputs */
+[data-radix-dialog-overlay] {
+  pointer-events: none !important;
+}
+
+[data-radix-dialog-content] {
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+}
+
+/* Mobile responsive fixes */
 .min-h-screen,
 [class*="min-h-screen"] {
   min-height: 100dvh;
@@ -120,28 +169,12 @@
   box-sizing: border-box;
 }
 
-/* Make ALL inputs always editable and iOS friendly */
-input, textarea, select {
-  font-size: 16px !important; /* Prevent iOS zoom */
-  background: none;
-  outline: none;
-  -webkit-user-select: text !important;
-  user-select: text !important;
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  touch-action: manipulation;
-  border-radius: 4px !important;
-  position: static !important;
-  z-index: auto !important;
-}
-
-/* Slight mobile vertical centering, fix for forms */
 @media (max-width: 768px) {
   html, body, #root {
     padding-top: 1.5rem;
     padding-bottom: env(safe-area-inset-bottom, 2.5rem);
     min-height: 100dvh;
-    height: 100dvh; /* fixes input push up */
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -150,58 +183,19 @@ input, textarea, select {
     position: static !important;
     overflow-y: auto !important;
   }
+  
   .container {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
-}
-
-/* Utility for iOS PWAs: All forms always scrollable! */
-form, .form-group, .max-w-md, .max-w-3xl {
-  min-width: 0;
-  background-clip: border-box;
-  position: static !important;
-  overflow: visible !important;
-}
-
-#lovable-badge {
-  display: none !important;
-}
-
-/* --- iOS/mobile fixes --- */
-
-/* Prevent zoom on mobile input fields, allow writing */
-input,
-textarea,
-select {
-  font-size: 16px !important;
-  background: none;
-  outline: inherit;
-  -webkit-user-select: text !important;
-  user-select: text !important;
-  -webkit-appearance: none !important;
-  appearance: none !important;
-}
-
-.ios-input-fix {
-  font-size: 16px !important;
-  outline: none !important;
-  -webkit-user-select: text !important;
-  user-select: text !important;
-  border-radius: 4px !important;
-}
-
-/* Make sure admin form/inputs aren't pushed up off-screen on iOS */
-@media (max-width: 600px) {
+  
   .max-w-md, .max-w-3xl {
     max-width: 100vw;
     margin: 0;
     border-radius: 0;
     box-shadow: none;
   }
-  .rounded-lg, .rounded {
-    border-radius: 0.5rem;
-  }
+  
   .p-8, .p-6 {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
@@ -210,87 +204,27 @@ select {
   }
 }
 
-/* iOS Standalone PWA: unblock all inputs in dialogs and overlays */
-@media all and (display-mode: standalone), (max-width: 600px) {
-  .dialog-content input,
-  .dialog-content textarea,
-  .dialog-content select,
-  .sheet-content input,
-  .sheet-content textarea,
-  .sheet-content select,
-  .modal input,
-  .modal textarea,
-  .modal select,
-  .ios-input-fix {
-    pointer-events: auto !important;
-    touch-action: manipulation !important;
-    z-index: 1 !important;
+/* iOS Standalone PWA specific fixes */
+@media all and (display-mode: standalone) {
+  /* Force all inputs to be interactive */
+  input, textarea, select {
     -webkit-user-select: text !important;
     user-select: text !important;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
     font-size: 16px !important;
-    background: #fff;
-    outline: inherit;
-    opacity: 1 !important;
+    background-color: white !important;
+    z-index: 1 !important;
+    position: relative !important;
   }
-
-  /* Also fix their containers just in case */
-  .dialog-content,
-  .sheet-content,
-  .modal,
-  .DrawerRoot,
-  .DialogOverlay {
+  
+  /* Ensure form containers don't interfere */
+  form, .form-group {
     pointer-events: auto !important;
-    z-index: 1000 !important;
-    position: fixed;
-  }
-
-  /* Fix the main overlay/backdrop so it does NOT block events */
-  .DialogOverlay,
-  .SheetOverlay,
-  .modal-backdrop {
-    pointer-events: none !important;
-    background: rgba(0,0,0,0.4) !important; /* Still show overlay visually */
-    z-index: 999 !important;
-  }
-
-  /* Fix for modal/dialog containers in shadcn/ui, radix-ui, or custom */
-  .DialogContent,
-  .SheetContent {
-    pointer-events: auto !important;
-    z-index: 1001 !important;
+    position: static !important;
   }
 }
 
-/* Fix all modal/dialog/modal containers to never block pointer/tap events on inputs */
-.dialog-content *,
-.sheet-content *,
-.modal *,
-.ios-input-fix {
-  pointer-events: auto !important;
-}
-
-/* Sometimes the focus gets "stolen" so we re-trigger it on tap for PWA on iOS */
-@media all and (display-mode: standalone), (max-width: 600px) {
-  input, textarea, select, .ios-input-fix {
-    -webkit-tap-highlight-color: transparent;
-    caret-color: #222;
-    background: #fff;
-  }
-}
-
-/* Extra: help iOS distinguish these fields */
-input, textarea, select, .ios-input-fix {
-  font-size: 16px !important;
-  touch-action: manipulation !important;
-  z-index: auto;
-  outline: inherit;
-}
-
-/* Ensure overlays never block the content inside */
-.DialogOverlay, .SheetOverlay, .modal-backdrop {
-  pointer-events: none !important;
-}
-/* But the content itself can get pointer-events */
-.DialogContent, .SheetContent, .dialog-content, .sheet-content, .modal {
-  pointer-events: auto !important;
+#lovable-badge {
+  display: none !important;
 }
