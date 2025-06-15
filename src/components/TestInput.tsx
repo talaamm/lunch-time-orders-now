@@ -2,39 +2,48 @@
 import React from 'react';
 
 const TestInput = () => {
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    console.log('Input focused:', e.target);
-  };
-
-  const handleClick = (e: React.MouseEvent<HTMLInputElement>) => {
-    console.log('Input clicked:', e.target);
-  };
-
   return (
-    <div className="p-4 border rounded-lg bg-white">
-      <h3 className="text-lg font-bold mb-4">iOS PWA Input Test</h3>
+    <div
+      style={{
+        zIndex: 99998,
+        position: 'relative',
+        background: 'rgba(255,255,0,0.12)',
+        padding: 8,
+        pointerEvents: 'auto'
+      }}
+    >
+      <h3 style={{ fontWeight: 'bold', marginBottom: 8 }}>iOS PWA Input Test (Bare)</h3>
       <input
         type="text"
-        placeholder="Test typing here..."
-        className="w-full p-3 border border-gray-300 rounded-md"
+        placeholder="Try typing here…"
         style={{
-          fontSize: '16px',
-          WebkitAppearance: 'none',
-          WebkitUserSelect: 'text',
-          userSelect: 'text',
-          touchAction: 'manipulation',
+          width: '100%',
+          height: 44,
+          padding: 8,
+          fontSize: 16,
+          border: '1px solid #aaa',
+          borderRadius: 6,
+          background: 'white',
+          color: '#333',
+          zIndex: 99999,
           pointerEvents: 'auto',
-          backgroundColor: 'white',
-          position: 'relative',
-          zIndex: 1,
-          transform: 'translateZ(0)'
+          position: 'relative'
         }}
+        tabIndex={0}
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
-        spellCheck="false"
-        onFocus={handleFocus}
-        onClick={handleClick}
+        spellCheck={false}
+        readOnly={false}
+        onClick={e => {
+          console.log('TestInput: CLICK', e.target);
+        }}
+        onFocus={e => {
+          console.log('TestInput: FOCUS', e.target);
+        }}
+        onInput={e => {
+          console.log('TestInput: INPUT', (e.target as HTMLInputElement).value);
+        }}
       />
     </div>
   );
