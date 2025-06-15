@@ -3,8 +3,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Viewport: prevent user scaling, enable viewport-fit=safe-area for iOS -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <!-- Viewport: only one meta, fully PWA/iOS compatible -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
     <title>ND Oasis Lounge - University Cafeteria</title>
     <meta name="description" content="University Cafeteria Ordering System - Order your meals for pickup" />
     <meta name="author" content="Lovable" />
@@ -17,9 +17,6 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="apple-touch-fullscreen" content="yes" />
-
-    <!-- Minimum iOS required for 'viewport-fit' -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- Manifest -->
     <link rel="manifest" href="/manifest.json" />
@@ -41,19 +38,24 @@
       #lovable-badge {
         display: none !important;
       }
-
-      /* Prevent zoom on input focus in iOS (enforced by CSS as well) */
+      /* Inputs remain font-size 16px, always user-editable */
       input, textarea, select {
         font-size: 16px !important;
         transform: translateZ(0);
+        -webkit-user-select: text !important;
+        user-select: text !important;
       }
-      /* Remove any position: fixed, overflow: hidden, or forced input/focus hack blocks */
-
-      /* Give a gentle min height and mobile padding for all containers */
       html, body {
         min-height: 100vh;
-        min-height: 100dvh;
         background: #f6f8fa;
+        height: 100%;
+        width: 100%;
+        font-size: 16px;
+      }
+      #root {
+        min-height: 100vh;
+        height: 100%;
+        width: 100%;
       }
     </style>
   </head>
