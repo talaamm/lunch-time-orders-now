@@ -11,26 +11,23 @@ export const useAdminSettings = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  // Notify service worker about settings changes
-  const notifyServiceWorker = useCallback((settings: AdminSettings) => {
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      console.log('Notifying service worker of settings change:', settings);
-      navigator.serviceWorker.controller.postMessage({
-        type: 'ADMIN_SETTINGS_CHANGED',
-        settings: settings
-      });
-    }
-  }, []);
-
   // Update admin settings state and notify service worker
   const updateSettingsState = useCallback((newSettings: AdminSettings) => {
     console.log('Updating admin settings state:', newSettings);
     setAdminSettings(newSettings);
-    notifyServiceWorker(newSettings);
-  }, [notifyServiceWorker]);
+    
+    // Notify service worker about settings changes
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      console.log('Notifying service worker of settings change:', newSettings);
+      navigator.serviceWorker.controller.postMessage({
+        type: 'ADMIN_SETTINGS_CHANGED',
+        settings: newSettings
+      });
+    }
+  }, []);
 
   // Fetch admin settings from Supabase
-  const fetchAdminSettings = async () => {
+  const fetchAdminSettings = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('Admin')
@@ -56,7 +53,7 @@ export const useAdminSettings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [updateSettingsState]);
 
   // Update admin settings in Supabase
   const updateAdminSettings = async (newSettings: Partial<AdminSettings>) => {
@@ -74,7 +71,7 @@ export const useAdminSettings = () => {
         throw error;
       }
 
-      // Update local state and notify service worker
+      // Update local state immediately
       const updatedSettings = { ...adminSettings, ...newSettings };
       updateSettingsState(updatedSettings);
     } catch (error) {
@@ -121,7 +118,17 @@ export const useAdminSettings = () => {
               message: newData.message || "Welcome to the University Cafeteria!",
               authorizedIPs: []
             };
-            updateSettingsState(newSettings);
+            // Force immediate state update without going through updateSettingsState to avoid loops
+            console.log('Forcing immediate state update from real-time subscription');
+            setAdminSettings(newSettings);
+            
+            // Still notify service worker for PWA users
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+              navigator.serviceWorker.controller.postMessage({
+                type: 'ADMIN_SETTINGS_CHANGED',
+                settings: newSettings
+              });
+            }
           }
         }
       )
@@ -133,7 +140,7 @@ export const useAdminSettings = () => {
         navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
       }
     };
-  }, [updateSettingsState]);
+  }, [fetchAdminSettings]);
 
   return {
     adminSettings,

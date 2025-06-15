@@ -37,6 +37,11 @@ const Index = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
 
+  // Force re-render when adminSettings change
+  useEffect(() => {
+    console.log('Admin settings changed in Index component:', adminSettings);
+  }, [adminSettings]);
+
   useEffect(() => {
     // Initialize notification service
     const initNotifications = async () => {
@@ -245,7 +250,7 @@ const Index = () => {
     );
   }
 
-  // If cafeteria is closed, show a message
+  // If cafeteria is closed, show a message - this will update immediately when adminSettings.isOpen changes
   if (!adminSettings.isOpen) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
