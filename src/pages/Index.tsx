@@ -1,4 +1,3 @@
-import React from "react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -19,7 +18,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import PWAInstallPrompt from "../components/PWAInstallPrompt";
 import { useAdminSettings } from "../hooks/useAdminSettings";
-import TestInput from "../components/TestInput";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -39,55 +37,7 @@ const Index = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
 
-  // == Move this effect UP here! ==
-  React.useEffect(() => {
-    if (typeof window === "undefined") return;
-    // Avoid double creation
-    if ((window as any).__lovable_input_debug) return;
-    (window as any).__lovable_input_debug = true;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.placeholder = 'Absolute Z-Top Debug Input';
-    Object.assign(input.style, {
-      position: 'fixed',
-      top: '0px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: '80vw',
-      zIndex: 2147483647, // absurdly high
-      height: '44px',
-      background: '#fffbe9',
-      color: '#333',
-      fontSize: '18px',
-      border: '2px solid #fd0',
-      borderRadius: '8px',
-      pointerEvents: 'auto'
-    });
-    input.tabIndex = 0;
-    input.setAttribute("autocomplete", "off");
-    input.setAttribute("autocapitalize", "off");
-    input.setAttribute("autocorrect", "off");
-    input.setAttribute("readonly", "false");
-    input.setAttribute("spellcheck", "false");
-
-    input.addEventListener('focus', e => {
-      console.log('ABSOLUTE DEBUG INPUT: FOCUS', e.target);
-    });
-    input.addEventListener('click', e => {
-      console.log('ABSOLUTE DEBUG INPUT: CLICK', e.target);
-    });
-    input.addEventListener('input', e => {
-      console.log('ABSOLUTE DEBUG INPUT: INPUT', input.value);
-    });
-
-    document.body.appendChild(input);
-
-    return () => {
-      if (input && input.parentNode) input.parentNode.removeChild(input);
-      (window as any).__lovable_input_debug = false;
-    };
-  }, []);
-
+  // Force re-render when adminSettings change
   useEffect(() => {
     console.log('Admin settings changed in Index component:', adminSettings);
     console.log('Settings version:', settingsVersion);
@@ -349,13 +299,8 @@ const Index = () => {
 
   console.log('Rendering open state because isOpen is:', adminSettings.isOpen);
 
-  // Minimal absolutely positioned always-on-top test input for debugging
-  
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Absolute on-top debug input (will be appended directly to body by useEffect) */}
-
       {/* Notification Permission Prompt */}
       {showNotificationPrompt && (
         <div className="bg-blue-50 border-b border-blue-200 p-2 sm:p-3">
@@ -478,11 +423,6 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        {/* Test Input Component - Remove after testing */}
-        <div className="mb-6">
-          <TestInput />
-        </div>
-
         <div className="mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl font-bold text-navy-800 mb-1">{selectedCategory || "Menu"}</h2>
           <p className="text-sm sm:text-base text-gray-500">Available {timeAvailable}</p>
