@@ -39,7 +39,55 @@ const Index = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
 
-  // Force re-render when adminSettings change
+  // == Move this effect UP here! ==
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    // Avoid double creation
+    if ((window as any).__lovable_input_debug) return;
+    (window as any).__lovable_input_debug = true;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Absolute Z-Top Debug Input';
+    Object.assign(input.style, {
+      position: 'fixed',
+      top: '0px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '80vw',
+      zIndex: 2147483647, // absurdly high
+      height: '44px',
+      background: '#fffbe9',
+      color: '#333',
+      fontSize: '18px',
+      border: '2px solid #fd0',
+      borderRadius: '8px',
+      pointerEvents: 'auto'
+    });
+    input.tabIndex = 0;
+    input.setAttribute("autocomplete", "off");
+    input.setAttribute("autocapitalize", "off");
+    input.setAttribute("autocorrect", "off");
+    input.setAttribute("readonly", "false");
+    input.setAttribute("spellcheck", "false");
+
+    input.addEventListener('focus', e => {
+      console.log('ABSOLUTE DEBUG INPUT: FOCUS', e.target);
+    });
+    input.addEventListener('click', e => {
+      console.log('ABSOLUTE DEBUG INPUT: CLICK', e.target);
+    });
+    input.addEventListener('input', e => {
+      console.log('ABSOLUTE DEBUG INPUT: INPUT', input.value);
+    });
+
+    document.body.appendChild(input);
+
+    return () => {
+      if (input && input.parentNode) input.parentNode.removeChild(input);
+      (window as any).__lovable_input_debug = false;
+    };
+  }, []);
+
   useEffect(() => {
     console.log('Admin settings changed in Index component:', adminSettings);
     console.log('Settings version:', settingsVersion);
@@ -302,53 +350,7 @@ const Index = () => {
   console.log('Rendering open state because isOpen is:', adminSettings.isOpen);
 
   // Minimal absolutely positioned always-on-top test input for debugging
-  React.useEffect(() => {
-    if (typeof window === "undefined") return;
-    // Avoid double creation
-    if ((window as any).__lovable_input_debug) return;
-    (window as any).__lovable_input_debug = true;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.placeholder = 'Absolute Z-Top Debug Input';
-    Object.assign(input.style, {
-      position: 'fixed',
-      top: '0px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: '80vw',
-      zIndex: 2147483647, // absurdly high
-      height: '44px',
-      background: '#fffbe9',
-      color: '#333',
-      fontSize: '18px',
-      border: '2px solid #fd0',
-      borderRadius: '8px',
-      pointerEvents: 'auto'
-    });
-    input.tabIndex = 0;
-    input.setAttribute("autocomplete", "off");
-    input.setAttribute("autocapitalize", "off");
-    input.setAttribute("autocorrect", "off");
-    input.setAttribute("readonly", "false");
-    input.setAttribute("spellcheck", "false");
-
-    input.addEventListener('focus', e => {
-      console.log('ABSOLUTE DEBUG INPUT: FOCUS', e.target);
-    });
-    input.addEventListener('click', e => {
-      console.log('ABSOLUTE DEBUG INPUT: CLICK', e.target);
-    });
-    input.addEventListener('input', e => {
-      console.log('ABSOLUTE DEBUG INPUT: INPUT', input.value);
-    });
-
-    document.body.appendChild(input);
-
-    return () => {
-      if (input && input.parentNode) input.parentNode.removeChild(input);
-      (window as any).__lovable_input_debug = false;
-    };
-  }, []);
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
