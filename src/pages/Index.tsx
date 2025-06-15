@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -304,8 +305,8 @@ const Index = () => {
   React.useEffect(() => {
     if (typeof window === "undefined") return;
     // Avoid double creation
-    if (window.__lovable_input_debug) return;
-    window.__lovable_input_debug = true;
+    if ((window as any).__lovable_input_debug) return;
+    (window as any).__lovable_input_debug = true;
     const input = document.createElement('input');
     input.type = 'text';
     input.placeholder = 'Absolute Z-Top Debug Input';
@@ -325,11 +326,11 @@ const Index = () => {
       pointerEvents: 'auto'
     });
     input.tabIndex = 0;
-    input.autocomplete = "off";
-    input.autocapitalize = "off";
-    input.autocorrect = "off";
-    input.readOnly = false;
-    input.spellcheck = false;
+    input.setAttribute("autocomplete", "off");
+    input.setAttribute("autocapitalize", "off");
+    input.setAttribute("autocorrect", "off");
+    input.setAttribute("readonly", "false");
+    input.setAttribute("spellcheck", "false");
 
     input.addEventListener('focus', e => {
       console.log('ABSOLUTE DEBUG INPUT: FOCUS', e.target);
@@ -345,7 +346,7 @@ const Index = () => {
 
     return () => {
       if (input && input.parentNode) input.parentNode.removeChild(input);
-      window.__lovable_input_debug = false;
+      (window as any).__lovable_input_debug = false;
     };
   }, []);
 
