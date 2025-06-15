@@ -26,11 +26,20 @@ export const useAdminSettings = () => {
       }
 
       if (data) {
-        setAdminSettings({
+        const newSettings = {
           isOpen: data.status,
           message: data.message || "Welcome to the University Cafeteria!",
-          authorizedIPs: [] // Keep this as empty array since we're not using auth
-        });
+          authorizedIPs: []
+        };
+        setAdminSettings(newSettings);
+        
+        // Notify service worker about settings change
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'ADMIN_SETTINGS_CHANGED',
+            settings: newSettings
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching admin settings:', error);
@@ -56,7 +65,16 @@ export const useAdminSettings = () => {
       }
 
       // Update local state
-      setAdminSettings(prev => ({ ...prev, ...newSettings }));
+      const updatedSettings = { ...adminSettings, ...newSettings };
+      setAdminSettings(updatedSettings);
+      
+      // Notify service worker about settings change
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'ADMIN_SETTINGS_CHANGED',
+          settings: updatedSettings
+        });
+      }
     } catch (error) {
       console.error('Error updating admin settings:', error);
       throw error;
@@ -65,6 +83,18 @@ export const useAdminSettings = () => {
 
   useEffect(() => {
     fetchAdminSettings();
+
+    // Listen for messages from service worker
+    const handleServiceWorkerMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'ADMIN_SETTINGS_UPDATE') {
+        console.log('Received admin settings update from service worker:', event.data.data);
+        setAdminSettings(event.data.data);
+      }
+    };
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
+    }
 
     // Set up real-time subscription to listen for changes
     const channel = supabase
@@ -82,11 +112,20 @@ export const useAdminSettings = () => {
           // Type guard to ensure payload.new exists and has the expected properties
           if (payload.new && typeof payload.new === 'object' && 'status' in payload.new) {
             const newData = payload.new as { status: boolean; message?: string };
-            setAdminSettings({
+            const newSettings = {
               isOpen: newData.status,
               message: newData.message || "Welcome to the University Cafeteria!",
               authorizedIPs: []
-            });
+            };
+            setAdminSettings(newSettings);
+            
+            // Notify service worker about settings change
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+              navigator.serviceWorker.controller.postMessage({
+                type: 'ADMIN_SETTINGS_CHANGED',
+                settings: newSettings
+              });
+            }
           }
         }
       )
@@ -94,6 +133,9 @@ export const useAdminSettings = () => {
 
     return () => {
       supabase.removeChannel(channel);
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
+      }
     };
   }, []);
 

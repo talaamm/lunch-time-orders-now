@@ -46,6 +46,21 @@ self.addEventListener('fetch', function(event) {
   );
 });
 
+// Handle messages from the main thread
+self.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'ADMIN_SETTINGS_CHANGED') {
+    // Send message to all clients about admin settings change
+    self.clients.matchAll().then(function(clients) {
+      clients.forEach(function(client) {
+        client.postMessage({
+          type: 'ADMIN_SETTINGS_UPDATE',
+          data: event.data.settings
+        });
+      });
+    });
+  }
+});
+
 // Push notification event
 self.addEventListener('push', function(event) {
   console.log('Push event received:', event);
