@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { menuItems, categories } from "../data/menuData";
-import { CartItem, MenuItem, AdminSettings, OrderDetails } from "../types/menu";
+import { CartItem, MenuItem, OrderDetails } from "../types/menu";
 import MenuSection from "../components/MenuSection";
 import OrderSummary from "../components/OrderSummary";
 import { sendWhatsAppMessage } from "../utils/whatsAppService";
@@ -17,19 +17,16 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import PWAInstallPrompt from "../components/PWAInstallPrompt";
+import { useAdminSettings } from "../hooks/useAdminSettings";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { adminSettings, loading } = useAdminSettings();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [orderStatus, setOrderStatus] = useState<"idle" | "processing" | "success" | "error">("idle");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [adminSettings, setAdminSettings] = useState<AdminSettings>({
-    isOpen: true,
-    message: "Welcome to the University Cafeteria!",
-    authorizedIPs: []
-  });
   const [customerName, setCustomerName] = useState("");
   const [isTakeaway, setIsTakeaway] = useState(false);
   const [pickupTime, setPickupTime] = useState("");
@@ -53,12 +50,6 @@ const Index = () => {
       }
     };
     initNotifications();
-
-    // Load admin settings from localStorage
-    const savedSettings = localStorage.getItem("adminSettings");
-    if (savedSettings) {
-      setAdminSettings(JSON.parse(savedSettings));
-    }
 
     // Get current time to determine default category
     const now = new Date();
@@ -237,6 +228,22 @@ const Index = () => {
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
+
+  // Show loading state while fetching admin settings
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <img 
+            src="/lovable-uploads/c9d55398-6bfd-4b70-a7c1-38820dd1fe40.png" 
+            alt="University Logo" 
+            className="h-32 mx-auto mb-6"
+          />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // If cafeteria is closed, show a message
   if (!adminSettings.isOpen) {

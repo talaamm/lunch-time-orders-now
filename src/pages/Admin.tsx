@@ -1,4 +1,3 @@
-
 import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,28 +6,31 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { AdminSettings } from "@/types/menu";
+import { useAdminSettings } from "@/hooks/useAdminSettings";
 
 const Admin = () => {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState<AdminSettings>({
-    isOpen: true,
-    message: "Welcome to the University Cafeteria!",
-    authorizedIPs: []
-  });
+  const { adminSettings, updateAdminSettings } = useAdminSettings();
   const [currentIP, setCurrentIP] = useState<string>("");
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [localSettings, setLocalSettings] = useState(adminSettings);
   
   // For demo purposes, we'll use a simple password
   const ADMIN_PASSWORD = "admin123";
   
   useEffect(() => {
-    // Load settings from localStorage
-    const savedSettings = localStorage.getItem("adminSettings");
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
+    // Update local settings when adminSettings change
+    setLocalSettings(adminSettings);
+  }, [adminSettings]);
+  
+  useEffect(() => {
+    // Load authorized IPs from localStorage (keeping this local since it's just for demo)
+    const savedAuthorizedIPs = localStorage.getItem("authorizedIPs");
+    if (savedAuthorizedIPs) {
+      const authorizedIPs = JSON.parse(savedAuthorizedIPs);
+      setLocalSettings(prev => ({ ...prev, authorizedIPs }));
     }
     
     // Get current IP address (in a real app, this would be server-side)
@@ -38,10 +40,10 @@ const Admin = () => {
         setCurrentIP(data.ip);
         
         // Check if IP is authorized
-        const savedSettings = localStorage.getItem("adminSettings");
-        if (savedSettings) {
-          const parsedSettings = JSON.parse(savedSettings);
-          if (parsedSettings.authorizedIPs && parsedSettings.authorizedIPs.includes(data.ip)) {
+        const savedAuthorizedIPs = localStorage.getItem("authorizedIPs");
+        if (savedAuthorizedIPs) {
+          const authorizedIPs = JSON.parse(savedAuthorizedIPs);
+          if (authorizedIPs.includes(data.ip)) {
             setIsAuthorized(true);
           }
         }
@@ -73,18 +75,33 @@ const Admin = () => {
     handleLogin();
   };
   
-  const handleSaveSettings = () => {
-    localStorage.setItem("adminSettings", JSON.stringify(settings));
-    toast({
-      title: "Settings saved",
-      description: "Cafeteria settings have been updated",
-    });
+  const handleSaveSettings = async () => {
+    try {
+      await updateAdminSettings({
+        isOpen: localSettings.isOpen,
+        message: localSettings.message
+      });
+      
+      // Save authorized IPs to localStorage (keeping this local)
+      localStorage.setItem("authorizedIPs", JSON.stringify(localSettings.authorizedIPs));
+      
+      toast({
+        title: "Settings saved",
+        description: "Cafeteria settings have been updated for all users",
+      });
+    } catch (error) {
+      toast({
+        title: "Error saving settings",
+        description: "There was an error updating the settings",
+        variant: "destructive",
+      });
+    }
   };
   
   const handleAddCurrentIP = () => {
-    if (currentIP && !settings.authorizedIPs.includes(currentIP)) {
-      const updatedIPs = [...settings.authorizedIPs, currentIP];
-      setSettings({...settings, authorizedIPs: updatedIPs});
+    if (currentIP && !localSettings.authorizedIPs.includes(currentIP)) {
+      const updatedIPs = [...localSettings.authorizedIPs, currentIP];
+      setLocalSettings({...localSettings, authorizedIPs: updatedIPs});
       setIsAuthorized(true);
       toast({
         title: "IP Added",
@@ -94,8 +111,8 @@ const Admin = () => {
   };
   
   const handleRemoveIP = (ip: string) => {
-    const updatedIPs = settings.authorizedIPs.filter(item => item !== ip);
-    setSettings({...settings, authorizedIPs: updatedIPs});
+    const updatedIPs = localSettings.authorizedIPs.filter(item => item !== ip);
+    setLocalSettings({...localSettings, authorizedIPs: updatedIPs});
     
     if (ip === currentIP) {
       setIsAuthorized(false);
@@ -182,8 +199,8 @@ const Admin = () => {
                 <p className="text-sm text-gray-500">Enable or disable ordering from the cafeteria</p>
               </div>
               <Switch
-                checked={settings.isOpen}
-                onCheckedChange={(checked) => setSettings({...settings, isOpen: checked})}
+                checked={localSettings.isOpen}
+                onCheckedChange={(checked) => setLocalSettings({...localSettings, isOpen: checked})}
               />
             </div>
             
@@ -191,8 +208,8 @@ const Admin = () => {
               <Label htmlFor="message">Status Message</Label>
               <Textarea
                 id="message"
-                value={settings.message}
-                onChange={(e) => setSettings({...settings, message: e.target.value})}
+                value={localSettings.message}
+                onChange={(e) => setLocalSettings({...localSettings, message: e.target.value})}
                 placeholder="Enter a message to display when the cafeteria is closed"
                 className="w-full"
               />
@@ -206,14 +223,14 @@ const Admin = () => {
                 <div className="flex-grow">
                   <Input value={currentIP} disabled />
                 </div>
-                <Button onClick={handleAddCurrentIP} disabled={settings.authorizedIPs.includes(currentIP)}>
+                <Button onClick={handleAddCurrentIP} disabled={localSettings.authorizedIPs.includes(currentIP)}>
                   Add Current IP
                 </Button>
               </div>
               
               <div className="mt-2 space-y-2">
-                {settings.authorizedIPs.length > 0 ? (
-                  settings.authorizedIPs.map(ip => (
+                {localSettings.authorizedIPs.length > 0 ? (
+                  localSettings.authorizedIPs.map(ip => (
                     <div key={ip} className="flex items-center justify-between bg-gray-50 p-2 rounded">
                       <span>{ip} {ip === currentIP && "(Current)"}</span>
                       <Button 
