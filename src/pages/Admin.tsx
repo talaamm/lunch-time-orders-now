@@ -10,7 +10,7 @@ import { useAdminSettings } from "@/hooks/useAdminSettings";
 
 const Admin = () => {
   const navigate = useNavigate();
-  const { adminSettings, updateAdminSettings } = useAdminSettings();
+  const { adminSettings, updateAdminSettings, settingsVersion } = useAdminSettings();
   const [currentIP, setCurrentIP] = useState<string>("");
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
@@ -21,9 +21,11 @@ const Admin = () => {
   const ADMIN_PASSWORD = "admin123";
   
   useEffect(() => {
+    console.log('Admin component - adminSettings changed:', adminSettings);
+    console.log('Admin component - settingsVersion:', settingsVersion);
     // Update local settings when adminSettings change
     setLocalSettings(adminSettings);
-  }, [adminSettings]);
+  }, [adminSettings, settingsVersion]);
   
   useEffect(() => {
     // Load authorized IPs from localStorage (keeping this local since it's just for demo)
@@ -57,11 +59,13 @@ const Admin = () => {
   const handleLogin = () => {
     if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
+      console.log('Admin login successful');
       toast({
         title: "Logged in successfully",
         description: "You now have admin access",
       });
     } else {
+      console.log('Admin login failed - invalid password');
       toast({
         title: "Authentication failed",
         description: "Invalid password",
@@ -76,11 +80,14 @@ const Admin = () => {
   };
   
   const handleSaveSettings = async () => {
+    console.log('Saving admin settings:', localSettings);
     try {
       await updateAdminSettings({
         isOpen: localSettings.isOpen,
         message: localSettings.message
       });
+      
+      console.log('Admin settings saved successfully');
       
       // Save authorized IPs to localStorage (keeping this local)
       localStorage.setItem("authorizedIPs", JSON.stringify(localSettings.authorizedIPs));
@@ -90,6 +97,7 @@ const Admin = () => {
         description: "Cafeteria settings have been updated for all users",
       });
     } catch (error) {
+      console.error('Error saving admin settings:', error);
       toast({
         title: "Error saving settings",
         description: "There was an error updating the settings",
@@ -200,7 +208,10 @@ const Admin = () => {
               </div>
               <Switch
                 checked={localSettings.isOpen}
-                onCheckedChange={(checked) => setLocalSettings({...localSettings, isOpen: checked})}
+                onCheckedChange={(checked) => {
+                  console.log('Cafeteria status switch changed to:', checked);
+                  setLocalSettings({...localSettings, isOpen: checked});
+                }}
               />
             </div>
             
@@ -209,7 +220,10 @@ const Admin = () => {
               <Textarea
                 id="message"
                 value={localSettings.message}
-                onChange={(e) => setLocalSettings({...localSettings, message: e.target.value})}
+                onChange={(e) => {
+                  console.log('Message changed to:', e.target.value);
+                  setLocalSettings({...localSettings, message: e.target.value});
+                }}
                 placeholder="Enter a message to display when the cafeteria is closed"
                 className="w-full"
               />

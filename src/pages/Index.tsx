@@ -21,7 +21,7 @@ import { useAdminSettings } from "../hooks/useAdminSettings";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { adminSettings, loading } = useAdminSettings();
+  const { adminSettings, loading, settingsVersion } = useAdminSettings();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -40,7 +40,10 @@ const Index = () => {
   // Force re-render when adminSettings change
   useEffect(() => {
     console.log('Admin settings changed in Index component:', adminSettings);
-  }, [adminSettings]);
+    console.log('Settings version:', settingsVersion);
+    console.log('Cafeteria is open:', adminSettings.isOpen);
+    console.log('Current message:', adminSettings.message);
+  }, [adminSettings, settingsVersion]);
 
   useEffect(() => {
     // Initialize notification service
@@ -236,6 +239,7 @@ const Index = () => {
 
   // Show loading state while fetching admin settings
   if (loading) {
+    console.log('Index component showing loading state');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -252,6 +256,7 @@ const Index = () => {
 
   // If cafeteria is closed, show a message - this will update immediately when adminSettings.isOpen changes
   if (!adminSettings.isOpen) {
+    console.log('Rendering closed state because isOpen is:', adminSettings.isOpen);
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <header className="bg-navy-800 text-white shadow-sm">
@@ -291,6 +296,8 @@ const Index = () => {
       </div>
     );
   }
+
+  console.log('Rendering open state because isOpen is:', adminSettings.isOpen);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -334,7 +341,7 @@ const Index = () => {
               alt="University Logo"
               className="h-8 sm:h-10"
             />
-            <h1 className="text-lg sm:text-xl font-bold">Latest Oasis Lounge</h1> // modified
+            <h1 className="text-lg sm:text-xl font-bold">ND Oasis Lounge</h1>
           </div>
           <div className="flex items-center space-x-1 sm:space-x-3">
             {/* Notification Toggle Button */}

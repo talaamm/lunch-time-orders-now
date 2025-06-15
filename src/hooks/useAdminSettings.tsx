@@ -10,11 +10,14 @@ export const useAdminSettings = () => {
     authorizedIPs: []
   });
   const [loading, setLoading] = useState(true);
+  const [settingsVersion, setSettingsVersion] = useState(0);
 
   // Update admin settings state and notify service worker
   const updateSettingsState = useCallback((newSettings: AdminSettings) => {
     console.log('Updating admin settings state:', newSettings);
     setAdminSettings(newSettings);
+    setSettingsVersion(prev => prev + 1);
+    console.log('Settings version updated to:', settingsVersion + 1);
     
     // Notify service worker about settings changes
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
@@ -24,10 +27,11 @@ export const useAdminSettings = () => {
         settings: newSettings
       });
     }
-  }, []);
+  }, [settingsVersion]);
 
   // Fetch admin settings from Supabase
   const fetchAdminSettings = useCallback(async () => {
+    console.log('Fetching admin settings from Supabase...');
     try {
       const { data, error } = await supabase
         .from('Admin')
@@ -41,11 +45,13 @@ export const useAdminSettings = () => {
       }
 
       if (data) {
+        console.log('Fetched admin settings data:', data);
         const newSettings = {
           isOpen: data.status,
           message: data.message || "Welcome to the University Cafeteria!",
           authorizedIPs: []
         };
+        console.log('Converted settings:', newSettings);
         updateSettingsState(newSettings);
       }
     } catch (error) {
@@ -57,6 +63,7 @@ export const useAdminSettings = () => {
 
   // Update admin settings in Supabase
   const updateAdminSettings = async (newSettings: Partial<AdminSettings>) => {
+    console.log('Updating admin settings in Supabase:', newSettings);
     try {
       const { error } = await supabase
         .from('Admin')
@@ -71,6 +78,8 @@ export const useAdminSettings = () => {
         throw error;
       }
 
+      console.log('Successfully updated admin settings in Supabase');
+
       // Update local state immediately
       const updatedSettings = { ...adminSettings, ...newSettings };
       updateSettingsState(updatedSettings);
@@ -81,6 +90,7 @@ export const useAdminSettings = () => {
   };
 
   useEffect(() => {
+    console.log('useAdminSettings hook initializing...');
     fetchAdminSettings();
 
     // Listen for messages from service worker
@@ -89,6 +99,7 @@ export const useAdminSettings = () => {
       if (event.data && event.data.type === 'ADMIN_SETTINGS_UPDATE') {
         console.log('Applying admin settings update from service worker:', event.data.data);
         setAdminSettings(event.data.data);
+        setSettingsVersion(prev => prev + 1);
       }
     };
 
@@ -98,6 +109,7 @@ export const useAdminSettings = () => {
     }
 
     // Set up real-time subscription to listen for changes
+    console.log('Setting up real-time subscription for admin settings...');
     const channel = supabase
       .channel('admin-settings-changes')
       .on(
@@ -109,7 +121,11 @@ export const useAdminSettings = () => {
           filter: 'id=eq.1'
         },
         (payload) => {
-          console.log('Real-time admin settings change detected:', payload);
+          console.log('🔥 Real-time admin settings change detected:', payload);
+          console.log('Event type:', payload.eventType);
+          console.log('New data:', payload.new);
+          console.log('Old data:', payload.old);
+          
           // Type guard to ensure payload.new exists and has the expected properties
           if (payload.new && typeof payload.new === 'object' && 'status' in payload.new) {
             const newData = payload.new as { status: boolean; message?: string };
@@ -118,12 +134,17 @@ export const useAdminSettings = () => {
               message: newData.message || "Welcome to the University Cafeteria!",
               authorizedIPs: []
             };
-            // Force immediate state update without going through updateSettingsState to avoid loops
-            console.log('Forcing immediate state update from real-time subscription');
+            console.log('🔄 Forcing immediate state update from real-time subscription:', newSettings);
             setAdminSettings(newSettings);
+            setSettingsVersion(prev => {
+              const newVersion = prev + 1;
+              console.log('🔢 Settings version updated to:', newVersion);
+              return newVersion;
+            });
             
             // Still notify service worker for PWA users
             if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+              console.log('📡 Notifying service worker from real-time update');
               navigator.serviceWorker.controller.postMessage({
                 type: 'ADMIN_SETTINGS_CHANGED',
                 settings: newSettings
@@ -132,9 +153,12 @@ export const useAdminSettings = () => {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Real-time subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up useAdminSettings hook...');
       supabase.removeChannel(channel);
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage);
@@ -146,6 +170,7 @@ export const useAdminSettings = () => {
     adminSettings,
     loading,
     updateAdminSettings,
-    refreshSettings: fetchAdminSettings
+    refreshSettings: fetchAdminSettings,
+    settingsVersion
   };
 };
