@@ -3,12 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "A professional cafeteria ordering system for fast, easy, and mobile-friendly lunch orders.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "format": "prettier --write .",
+    "preview": "vite preview",
+    "test": "echo \"Add your test runner (e.g. vitest) here\" && exit 0"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -79,6 +82,7 @@
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1"
+    "vite": "^5.4.1",
+    "prettier": "^3.0.0"
   }
 }

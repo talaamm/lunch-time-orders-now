@@ -1,73 +1,103 @@
-# Welcome to your Lovable project
+# Lunch Time Orders Now
 
-## Project info
+## 📝 Project Overview
 
-**URL**: https://lovable.dev/projects/b086bb6b-a708-49a6-aeea-c4e8df129265
+Lunch Time Orders Now is a modern, professional cafeteria ordering system designed for fast, easy, and mobile-friendly lunch orders. Built with React, TypeScript, Vite, Tailwind CSS, and Supabase, it offers real-time admin controls, WhatsApp notifications, and a seamless user experience for both customers and administrators.
 
-## How can I edit this code?
+## 📚 Table of Contents
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Getting Started](#-getting-started)
+- [Testing](#-testing)
+- [Contributing](#-contributing)
+- [Screenshots / Demo](#-screenshots--demo)
+- [Environment Variables & Configuration](#️-environment-variables--configuration)
+- [License](#-license)
 
-There are several ways of editing your application.
+[![Build Status](https://img.shields.io/github/workflow/status/yourusername/lunch-time-orders-now/CI)](https://github.com/yourusername/lunch-time-orders-now/actions)
+[![License](https://img.shields.io/github/license/yourusername/lunch-time-orders-now)](LICENSE)
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b086bb6b-a708-49a6-aeea-c4e8df129265) and start prompting.
+## 🚀 Features
+- Modern, responsive UI (shadcn-ui, Tailwind CSS)
+- Real-time admin controls (Supabase integration)
+- WhatsApp order notifications
+- PWA support (installable, offline-ready)
+- User-friendly order history and discounts
+- Admin authentication and IP whitelisting
+- Accessibility and mobile-first design
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 📦 Tech Stack
+- [React](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vitejs.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Supabase](https://supabase.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🛠️ Getting Started
 
-Follow these steps:
+### Prerequisites
+- Node.js (v18+ recommended)
+- npm or bun
 
+### Installation
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
+cd lunch-time-orders-now
+npm install # or bun install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Development
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Linting & Formatting
+```sh
+npm run lint
+npm run format
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Build
+```sh
+npm run build
+```
 
-**Use GitHub Codespaces**
+### Deployment
+- Deploy via [Lovable](https://lovable.dev/) or your preferred platform (Vercel, Netlify, etc.)
+- For custom domains, see Lovable docs or your host's instructions.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## 🧪 Testing
+To be added: Unit and E2E tests. Please contribute tests in `src/__tests__` and document how to run them.
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🤝 Contributing
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or suggestions.
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/b086bb6b-a708-49a6-aeea-c4e8df129265) and click on Share -> Publish.
+## 📸 Screenshots / Demo
+Add screenshots or a demo GIF here to showcase the app.
 
-## Can I connect a custom domain to my Lovable project?
+---
 
-Yes, you can!
+## ⚙️ Environment Variables & Configuration
+Document any required environment variables here (e.g., Supabase keys, WhatsApp API, etc.).
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 📄 License
+[MIT](LICENSE)
+
+---
+
+> Built with ❤️ by Noor and contributors.
